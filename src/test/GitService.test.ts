@@ -14,6 +14,9 @@ async function setupRepo(name: string): Promise<{ repo: GitService; root: string
   // below would fail with "Author identity unknown".
   execFileSync('git', ['config', 'user.email', 'tests@celes.invalid'], { cwd: root });
   execFileSync('git', ['config', 'user.name', 'Celes Tests'], { cwd: root });
+  // init.defaultBranch differs per machine and git version, so pin the branch
+  // instead of asserting against whatever `git init` happened to pick.
+  execFileSync('git', ['symbolic-ref', 'HEAD', 'refs/heads/main'], { cwd: root });
   return { repo: service, root };
 }
 
