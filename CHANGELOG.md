@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2026-09-19
+
+### Fixed
+- Removed the `repository` and `bugs` links from the manifest. They pointed at a GitHub URL that does not exist, so the Marketplace listing showed a broken Repository link.
+- The README no longer links to `CONTRIBUTING.md` with a relative path, which cannot resolve without a repository.
+
 ## [0.1.2] - 2026-09-19
 
 ### Added
