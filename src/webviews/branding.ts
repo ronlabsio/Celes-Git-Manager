@@ -1,3 +1,5 @@
+import { randomBytes } from 'crypto';
+
 export const CELES_MARK_SVG = `<svg class="celes-mark" viewBox="0 0 256 256" width="24" height="24" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="celes-hdr-bg" x1="0" y1="0" x2="1" y2="1">
@@ -108,3 +110,12 @@ export const CELES_STRIP_CSS = `
       text-overflow: ellipsis;
     }
 ${CELES_ICON_CSS}`;
+
+/** Nonce for the webview Content-Security-Policy, so only our inline script runs. */
+export function createNonce(): string {
+  return randomBytes(16).toString('base64');
+}
+
+export function cspMeta(cspSource: string, nonce: string): string {
+  return `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${cspSource} data:; style-src ${cspSource} 'unsafe-inline'; font-src ${cspSource}; script-src 'nonce-${nonce}';">`;
+}

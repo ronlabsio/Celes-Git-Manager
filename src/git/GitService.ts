@@ -191,7 +191,8 @@ export class GitService {
   }
 
   async discardUntracked(filePath: string): Promise<void> {
-    await this.run(['rm', '-f', '--', filePath]);
+    // git rm only handles tracked files; untracked ones need clean.
+    await this.run(['clean', '-f', '--', filePath]);
   }
 
   async commit(message: string): Promise<void> {
@@ -292,17 +293,43 @@ export class GitService {
     return parseCommitNamesStatus(result.stdout);
   }
 
-  async renameCommit(_sha: string, newMessage: string): Promise<void> {
+  async getHeadSha(): Promise<string> {
+    const result = await this.run(['rev-parse', 'HEAD']);
+    return result.stdout.trim();
+  }
+
+  /**
+   * Both rewrites below act on HEAD. Callers pass the commit the user picked,
+   * so refuse anything else: under folder scope the top of the displayed
+   * history is the latest commit touching that folder, not necessarily HEAD.
+   */
+  private async assertIsHead(sha: string, action: string): Promise<void> {
+    if (!sha?.trim()) {
+      throw new GitError('Commit not specified');
+    }
+    const head = await this.getHeadSha();
+    if (!head.startsWith(sha.trim()) && !sha.trim().startsWith(head)) {
+      throw new GitError(
+        `Refusing to ${action}: ${sha.trim().substring(0, 7)} is not the latest commit`,
+        undefined,
+        '',
+        '',
+        `Only the latest commit can be ${action === 'amend' ? 'renamed' : 'undone'}. ` +
+          `Commit ${sha.trim().substring(0, 7)} is not the latest one on this branch.`
+      );
+    }
+  }
+
+  async renameCommit(sha: string, newMessage: string): Promise<void> {
     if (!newMessage.trim()) {
       throw new GitError('Commit message is empty');
     }
-    // This only rewrites the latest commit. Git will fail for older SHAs.
-    void _sha;
+    await this.assertIsHead(sha, 'amend');
     await this.run(['commit', '--amend', '--message', newMessage.trim()]);
   }
 
-  async softUndoCommit(_sha: string): Promise<void> {
-    void _sha;
+  async softUndoCommit(sha: string): Promise<void> {
+    await this.assertIsHead(sha, 'undo');
     // Move HEAD back one commit but keep changes staged.
     await this.run(['reset', '--soft', 'HEAD~1']);
   }

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
-import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml } from './branding';
+import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml, cspMeta, createNonce } from './branding';
 
 export class CommitPanel {
   public static readonly viewType = 'celes.commitPanel';
@@ -32,7 +32,7 @@ export class CommitPanel {
       }
     );
 
-    this.panel.webview.html = this.getHtml();
+    this.panel.webview.html = this.getHtml(this.panel.webview);
 
     this.panel.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
@@ -195,13 +195,16 @@ export class CommitPanel {
     this.panel?.webview.postMessage({ type: 'error', message: this.errorMessage(err) });
   }
 
-  getHtml(): string {
+  getHtml(webview?: vscode.Webview): string {
+    const nonce = createNonce();
+    const cspSource = webview?.cspSource ?? "";
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${cspMeta(cspSource, nonce)}
   <title>Celes Commit</title>
   <style>
     :root {
@@ -299,7 +302,7 @@ ${celesStripHtml({ badgeId: 'branch' })}
 
   <div class="toast" id="toast"></div>
 
-  <script>
+  <script nonce="${nonce}">
     const vscode = acquireVsCodeApi();
     let state = { files: [], branch: 'unknown', selectedPath: null };
 
@@ -351,7 +354,12 @@ ${celesStripHtml({ badgeId: 'branch' })}
     }
 
     function escapeHtml(text) {
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function renderDiff(diff, path) {

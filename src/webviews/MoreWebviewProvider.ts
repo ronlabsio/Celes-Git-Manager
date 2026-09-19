@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { RepositoryStatus } from '../models';
-import { CELES_ICONS } from './branding';
+import { CELES_ICONS, cspMeta, createNonce } from './branding';
 
 export class MoreWebviewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'celesMore';
@@ -25,7 +25,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this.extensionUri]
     };
 
-    webviewView.webview.html = this.getHtml();
+    webviewView.webview.html = this.getHtml(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
@@ -124,11 +124,12 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
     }
 
     try {
-      const [status, branches, stashes, history] = await Promise.all([
+      const [status, branches, stashes, history, headSha] = await Promise.all([
         this.gitService.getRepositoryStatus().catch(() => undefined),
         this.gitService.getBranches().catch(() => []),
         this.gitService.getStashes().catch(() => []),
-        this.gitService.getHistory(50).catch(() => [])
+        this.gitService.getHistory(50).catch(() => []),
+        this.gitService.getHeadSha().catch(() => '')
       ]);
 
       this.view.webview.postMessage({
@@ -136,6 +137,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
         status: status ? this.serializeStatus(status) : undefined,
         branches,
         stashes,
+        headSha,
         history: history.map((c) => ({ ...c, date: c.date.toISOString() }))
       });
     } catch (err) {
@@ -176,13 +178,16 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
     return err instanceof GitError ? err.userMessage : err instanceof Error ? err.message : String(err);
   }
 
-  getHtml(): string {
+  getHtml(webview?: vscode.Webview): string {
+    const nonce = createNonce();
+    const cspSource = webview?.cspSource ?? "";
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${cspMeta(cspSource, nonce)}
   <title>Celes More</title>
   <style>
     :root {
@@ -435,17 +440,22 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
 
   <div id="commitMenu" class="context-menu" style="display:none"></div>
 
-  <script>
+  <script nonce="${nonce}">
     const ICONS = ${JSON.stringify(CELES_ICONS)};
     const vscode = acquireVsCodeApi();
-    let state = { status: undefined, branches: [], stashes: [], history: [], expandedCommits: new Set(), pendingCommits: new Set(), failedCommits: new Set() };
+    let state = { status: undefined, branches: [], stashes: [], history: [], headSha: '', expandedCommits: new Set(), pendingCommits: new Set(), failedCommits: new Set() };
 
     function send(command, data = {}) {
       vscode.postMessage({ command, ...data });
     }
 
     function escapeHtml(text) {
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function renderBranches() {
@@ -620,7 +630,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
         header.addEventListener('contextmenu', function(e) {
           e.preventDefault();
           e.stopPropagation();
-          openCommitMenu(e, commit, index === 0);
+          openCommitMenu(e, commit, commit.sha === state.headSha);
         });
         header.addEventListener('click', function() {
           const expanded = details.style.display === 'block';
@@ -765,6 +775,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
       if (msg.type === 'state') {
         state.status = msg.status;
         state.branches = msg.branches;
+        state.headSha = msg.headSha || '';
         state.stashes = msg.stashes;
         const loadedFiles = new Map();
         state.history.forEach(function(c) { if (c.files) loadedFiles.set(c.sha, c.files); });

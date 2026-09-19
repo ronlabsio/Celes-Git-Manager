@@ -1,6 +1,5 @@
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import * as path from 'path';
 import * as process from 'process';
 import { GitError, normalizeGitError } from '../utils/errors';
 
@@ -112,9 +111,5 @@ export class GitCommandRunner {
   async version(cwd?: string): Promise<string> {
     const result = await this.run(['--version'], { cwd });
     return result.stdout.trim();
-  }
-
-  static isExecutablePath(candidate: string): boolean {
-    return path.isAbsolute(candidate) || candidate.includes(path.sep);
   }
 }

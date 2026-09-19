@@ -31,6 +31,12 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Celes runs the git executable against the opened repository, so it stays disabled until the workspace is trusted."
+    }
+  },
   "contributes": {
     "configuration": {
       "title": "Celes – Git Manager",
@@ -38,7 +44,8 @@
         "celes.gitPath": {
           "type": "string",
           "default": "",
-          "description": "Path to the git executable. Leave empty to detect automatically."
+          "scope": "machine",
+          "description": "Path to the git executable. Leave empty to detect automatically. Machine-scoped: a workspace cannot override it, because this path is executed."
         },
         "celes.logLevel": {
           "type": "string",

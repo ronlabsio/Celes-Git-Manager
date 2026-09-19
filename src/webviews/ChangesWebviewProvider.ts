@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
-import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml } from './branding';
+import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml, cspMeta, createNonce } from './branding';
 
 interface WebviewFile {
   path: string;
@@ -29,7 +29,7 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this.extensionUri]
     };
 
-    webviewView.webview.html = this.getHtml();
+    webviewView.webview.html = this.getHtml(webviewView.webview);
 
     webviewView.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
@@ -262,13 +262,16 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
     this.view?.webview.postMessage({ type: 'error', message: this.errorMessage(err) });
   }
 
-  getHtml(): string {
+  getHtml(webview?: vscode.Webview): string {
+    const nonce = createNonce();
+    const cspSource = webview?.cspSource ?? "";
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${cspMeta(cspSource, nonce)}
   <title>Celes Changes</title>
   <style>
     :root {
@@ -579,7 +582,7 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
 
   <div class="toast" id="toast"></div>
 
-  <script>
+  <script nonce="${nonce}">
     const ICONS = ${JSON.stringify(CELES_ICONS)};
     const vscode = acquireVsCodeApi();
     let state = { files: [], branch: 'unknown', treeView: true, collapsedFolders: new Set() };
@@ -589,7 +592,12 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
     }
 
     function escapeHtml(text) {
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return String(text == null ? '' : text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function buildTree(files) {
