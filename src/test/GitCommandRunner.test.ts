@@ -1,4 +1,6 @@
 import * as assert from 'assert';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { GitCommandRunner } from '../git/GitCommandRunner';
 import { GitError } from '../utils/errors';
@@ -27,13 +29,18 @@ describe('GitCommandRunner', () => {
   });
 
   it('should throw GitError on invalid repository', async () => {
-    const invalidCwd = path.resolve(__dirname, '../../src');
+    // A temp dir, not src/: src/ lives inside this repository, so git reported
+    // success there and the assertion failure was caught as the "error".
+    const invalidCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'celes-not-a-repo-'));
+    let caught: unknown;
     try {
       await runner.run(['rev-parse', '--is-inside-work-tree'], { cwd: invalidCwd });
-      assert.fail('expected GitError');
     } catch (err) {
-      assert.ok(err instanceof GitError, `expected GitError but got ${typeof err}`);
+      caught = err;
+    } finally {
+      fs.rmSync(invalidCwd, { recursive: true, force: true });
     }
+    assert.ok(caught instanceof GitError, `expected GitError but got ${caught}`);
   });
 
   it('should throw GitError when git executable is not found', async () => {

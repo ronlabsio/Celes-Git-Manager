@@ -1,4 +1,5 @@
 import * as assert from 'assert';
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -9,6 +10,10 @@ async function setupRepo(name: string): Promise<{ repo: GitService; root: string
   const root = fs.mkdtempSync(path.join(os.tmpdir(), name));
   const service = new GitService({ workspaceRoot: root });
   await service.initializeRepository();
+  // A fresh machine or CI runner has no global git identity, and every commit
+  // below would fail with "Author identity unknown".
+  execFileSync('git', ['config', 'user.email', 'tests@celes.invalid'], { cwd: root });
+  execFileSync('git', ['config', 'user.name', 'Celes Tests'], { cwd: root });
   return { repo: service, root };
 }
 
