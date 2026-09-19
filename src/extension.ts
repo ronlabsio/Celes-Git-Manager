@@ -3,6 +3,7 @@ import { GitService } from './git/GitService';
 import type { GitScopeMode } from './git/GitService';
 import { registerCommands } from './commands';
 import { debounce } from './utils/debounce';
+import { log } from './utils/logger';
 import { CommitPanel } from './webviews/CommitPanel';
 import { ChangesWebviewProvider } from './webviews/ChangesWebviewProvider';
 import { MoreWebviewProvider } from './webviews/MoreWebviewProvider';
@@ -39,7 +40,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    outputChannel.appendLine('No workspace folder open. Celes will activate when a folder is opened.');
+    log(outputChannel, 'info', 'No workspace folder open. Celes will activate when a folder is opened.');
     return;
   }
 

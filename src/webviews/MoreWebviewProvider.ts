@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
+import { log } from '../utils/logger';
 import { RepositoryStatus } from '../models';
 import { CELES_ICONS, cspMeta, createNonce } from './branding';
 
@@ -48,13 +49,13 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
           await vscode.commands.executeCommand('celes.createStash');
           break;
         case 'applyStash':
-          await vscode.commands.executeCommand('celes.applyStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.applyStash', { index: message.index, message: message.message });
           break;
         case 'popStash':
-          await vscode.commands.executeCommand('celes.popStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.popStash', { index: message.index, message: message.message });
           break;
         case 'deleteStash':
-          await vscode.commands.executeCommand('celes.deleteStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.deleteStash', { index: message.index, message: message.message });
           break;
         case 'fetch':
           await vscode.commands.executeCommand('celes.fetch');
@@ -168,9 +169,9 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
 
   private logError(operation: string, err: unknown): void {
     const message = err instanceof Error ? err.message : String(err);
-    this.outputChannel.appendLine(`[moreWebview:${operation}] ${message}`);
+    log(this.outputChannel, 'error', `[moreWebview:${operation}] ${message}`);
     if (err instanceof GitError && err.stderr) {
-      this.outputChannel.appendLine(err.stderr);
+      log(this.outputChannel, 'error', err.stderr);
     }
   }
 
@@ -524,7 +525,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
       }
 
       container.innerHTML = state.stashes.map(function(s) {
-        return '<div class="item" data-index="' + s.index + '">' +
+        return '<div class="item" data-index="' + s.index + '" data-message="' + escapeHtml(s.message) + '">' +
           '<span class="icon">' + ICONS.archive + '</span>' +
           '<span class="label" title="' + escapeHtml(s.message) + '">' + escapeHtml(s.message) + '</span>' +
           '<span class="stash-actions">' +
@@ -537,17 +538,18 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
 
       container.querySelectorAll('.item').forEach(function(el) {
         const index = parseInt(el.dataset.index, 10);
+        const message = el.dataset.message;
         el.querySelector('.apply')?.addEventListener('click', function(e) {
           e.stopPropagation();
-          send('applyStash', { index });
+          send('applyStash', { index, message });
         });
         el.querySelector('.pop')?.addEventListener('click', function(e) {
           e.stopPropagation();
-          send('popStash', { index });
+          send('popStash', { index, message });
         });
         el.querySelector('.delete')?.addEventListener('click', function(e) {
           e.stopPropagation();
-          send('deleteStash', { index });
+          send('deleteStash', { index, message });
         });
       });
     }

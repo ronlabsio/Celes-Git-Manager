@@ -370,15 +370,40 @@ export class GitService {
     await this.run(args);
   }
 
-  async applyStash(index: number): Promise<void> {
+  /**
+   * stash@{n} is positional, so an entry created or dropped elsewhere shifts
+   * every index the UI is holding. Callers pass the message they displayed and
+   * we refuse to act when the slot no longer holds it.
+   */
+  private async assertStashAt(index: number, expectedMessage?: string): Promise<void> {
+    if (expectedMessage === undefined) {
+      return;
+    }
+    const stashes = await this.getStashes();
+    const entry = stashes.find((stash) => stash.index === index);
+    if (!entry || entry.message !== expectedMessage) {
+      throw new GitError(
+        `Stash at index ${index} no longer matches the one that was selected`,
+        undefined,
+        '',
+        '',
+        'The stash list changed since it was loaded. Refresh and try again.'
+      );
+    }
+  }
+
+  async applyStash(index: number, expectedMessage?: string): Promise<void> {
+    await this.assertStashAt(index, expectedMessage);
     await this.run(['stash', 'apply', `stash@{${index}}`]);
   }
 
-  async popStash(index: number): Promise<void> {
+  async popStash(index: number, expectedMessage?: string): Promise<void> {
+    await this.assertStashAt(index, expectedMessage);
     await this.run(['stash', 'pop', `stash@{${index}}`]);
   }
 
-  async deleteStash(index: number): Promise<void> {
+  async deleteStash(index: number, expectedMessage?: string): Promise<void> {
+    await this.assertStashAt(index, expectedMessage);
     await this.run(['stash', 'drop', `stash@{${index}}`]);
   }
 

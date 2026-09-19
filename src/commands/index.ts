@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
+import { log } from '../utils/logger';
 import { explain } from '../utils/gitExplain';
 import { GitFileChange } from '../models';
 import { CommitPanel } from '../webviews/CommitPanel';
@@ -10,9 +11,14 @@ import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
 
 function logError(outputChannel: vscode.OutputChannel, operation: string, err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
-  outputChannel.appendLine(`[${operation}] ${message}`);
-  if (err instanceof GitError && err.stderr) {
-    outputChannel.appendLine(err.stderr);
+  log(outputChannel, 'error', `[${operation}] ${message}`);
+  if (err instanceof GitError) {
+    if (err.stderr) {
+      log(outputChannel, 'error', err.stderr);
+    }
+    if (err.gitCommand) {
+      log(outputChannel, 'debug', `[${operation}] ${err.gitCommand}`);
+    }
   }
 }
 
@@ -481,7 +487,7 @@ export function registerCommands(
     }
   });
 
-  register('celes.applyStash', async (stash?: { index: number }) => {
+  register('celes.applyStash', async (stash?: { index: number; message?: string }) => {
     if (stash === undefined) {
       return;
     }
@@ -496,7 +502,7 @@ export function registerCommands(
     }
 
     try {
-      await gitService.applyStash(stash.index);
+      await gitService.applyStash(stash.index, stash.message);
       refreshAll();
       vscode.window.showInformationMessage('Stash applied.');
     } catch (err) {
@@ -505,7 +511,7 @@ export function registerCommands(
     }
   });
 
-  register('celes.popStash', async (stash?: { index: number }) => {
+  register('celes.popStash', async (stash?: { index: number; message?: string }) => {
     if (stash === undefined) {
       return;
     }
@@ -520,7 +526,7 @@ export function registerCommands(
     }
 
     try {
-      await gitService.popStash(stash.index);
+      await gitService.popStash(stash.index, stash.message);
       refreshAll();
       vscode.window.showInformationMessage('Stash popped.');
     } catch (err) {
@@ -529,7 +535,7 @@ export function registerCommands(
     }
   });
 
-  register('celes.deleteStash', async (stash?: { index: number }) => {
+  register('celes.deleteStash', async (stash?: { index: number; message?: string }) => {
     if (stash === undefined) {
       return;
     }
@@ -545,7 +551,7 @@ export function registerCommands(
     }
 
     try {
-      await gitService.deleteStash(stash.index);
+      await gitService.deleteStash(stash.index, stash.message);
       refreshAll();
       vscode.window.showInformationMessage('Stash deleted.');
     } catch (err) {

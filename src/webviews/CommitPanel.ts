@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
+import { log } from '../utils/logger';
 import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml, cspMeta, createNonce } from './branding';
 
 export class CommitPanel {
@@ -181,9 +182,9 @@ export class CommitPanel {
 
   private logError(operation: string, err: unknown): void {
     const message = err instanceof Error ? err.message : String(err);
-    this.outputChannel.appendLine(`[commitPanel:${operation}] ${message}`);
+    log(this.outputChannel, 'error', `[commitPanel:${operation}] ${message}`);
     if (err instanceof GitError && err.stderr) {
-      this.outputChannel.appendLine(err.stderr);
+      log(this.outputChannel, 'error', err.stderr);
     }
   }
 
