@@ -1,6 +1,6 @@
 {
   "name": "celes-git-manager",
-  "displayName": "Celes – Git Manager",
+  "displayName": "Celes - Git Manager",
   "description": "Git scoped to the package you are working on. A visual Git panel for VS Code, built for monorepos.",
   "version": "0.1.2",
   "publisher": "ronlabs",
