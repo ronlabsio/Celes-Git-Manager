@@ -3,7 +3,7 @@
   "displayName": "Celes – Git Manager",
   "description": "Visual Git management inside VS Code: stage, commit, branches, stashes and history in one panel.",
   "version": "0.1.2",
-  "publisher": "ronaldlopes",
+  "publisher": "ronlabs",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -95,11 +95,6 @@
       "view/title": [
         {
           "command": "celes.refresh",
-          "when": "view == celesOverview",
-          "group": "navigation"
-        },
-        {
-          "command": "celes.refresh",
           "when": "view == celesChanges",
           "group": "navigation"
         },
@@ -117,58 +112,6 @@
           "command": "celes.unstageAll",
           "when": "view == celesChanges",
           "group": "navigation@3"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "celes.checkoutBranch",
-          "when": "viewItem == celesLocalBranch",
-          "group": "inline"
-        },
-        {
-          "command": "celes.deleteBranch",
-          "when": "viewItem == celesLocalBranch",
-          "group": "inline"
-        },
-        {
-          "command": "celes.renameBranch",
-          "when": "viewItem == celesLocalBranch",
-          "group": "inline"
-        },
-        {
-          "command": "celes.applyStash",
-          "when": "viewItem == celesStash",
-          "group": "inline"
-        },
-        {
-          "command": "celes.popStash",
-          "when": "viewItem == celesStash",
-          "group": "inline"
-        },
-        {
-          "command": "celes.deleteStash",
-          "when": "viewItem == celesStash",
-          "group": "inline"
-        },
-        {
-          "command": "celes.renameCommit",
-          "when": "viewItem == celesLatestCommit",
-          "group": "9_cutcopypaste@1"
-        },
-        {
-          "command": "celes.undoCommit",
-          "when": "viewItem == celesLatestCommit",
-          "group": "9_cutcopypaste@2"
-        },
-        {
-          "command": "celes.showCommitDiff",
-          "when": "viewItem == celesCommit || viewItem == celesLatestCommit",
-          "group": "9_cutcopypaste@3"
-        },
-        {
-          "command": "celes.openCommitFileDiff",
-          "when": "viewItem == celesCommitFile",
-          "group": "inline"
         }
       ],
       "commandPalette": [

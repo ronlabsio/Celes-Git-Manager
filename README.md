@@ -6,10 +6,10 @@ Celes is a VS Code extension that provides a complete visual interface for **loc
 
 ## Features
 
-- **Commit panel**: stage/unstage files with `+`/`-` actions, write the commit message, commit and push — all in a single sidebar view similar to VS Code's Source Control.
-- **Changes tree**: native tree view with Staged, Changes and Untracked sections; files are grouped by folder and support inline stage, unstage and discard actions.
-- **History tree**: expand any commit to see changed files (including renames); click a file to open a native side-by-side diff inside the editor.
-- **More panel**: switch between tabs for Branches, Stashes and Repository Overview.
+- **Changes panel**: write the commit message, commit and push, and stage, unstage or discard files inline — all in one sidebar view. Files can be shown grouped by folder or as a flat list.
+- **Commit editor**: a wider commit view in an editor tab, for when the sidebar is too narrow.
+- **More panel**: tabs for History, Branches, Stashes and Repository Overview.
+- **History**: expand any commit to see changed files (including renames); click a file to open a native side-by-side diff inside the editor.
 - **Remote Operations**: fetch, pull, push, and publish a local branch to origin.
 - **Branches**: list, create, checkout, rename, and safely delete local and remote branches.
 - **Stashes**: create, apply, pop, and delete stashes.
@@ -17,10 +17,6 @@ Celes is a VS Code extension that provides a complete visual interface for **loc
 - **Monorepo folder scope**: when you open a package inside a larger repository, Celes only shows changes, commits and diffs for that folder.
 - **Educational UI**: every non-obvious operation is explained, and equivalent Git commands are shown when useful.
 - **Humanized Errors**: Git errors are translated into clear messages while preserving raw details in the Celes output channel.
-
-## Screenshots
-
-> Placeholder: screenshots will be added after the first UI review.
 
 ## Requirements
 
@@ -38,8 +34,8 @@ You can optionally configure a custom Git path:
 ### Working in a monorepo
 
 If you open a subfolder of a repository (for example `packages/api` inside a monorepo), Celes scopes the
-Changes panel, the commit history and commit file lists to that folder by default. The branch badge shows the
-scope so you always know what is being displayed.
+Changes panel, the commit history and commit file lists to that folder by default. Hovering the branch badge
+shows the active scope.
 
 ```json
 {
@@ -57,10 +53,9 @@ button in the More panel under Overview.
 
 1. Open a workspace that contains a Git repository.
 2. Click the **Celes** icon in the Activity Bar.
-3. Use the **Commit** panel to stage files and commit.
-4. Expand commits in the **History** panel to see changed files and open diffs.
-5. Switch between Branches, Stashes and Overview in the **More** panel.
-4. Click actions on items to stage, unstage, commit, switch branches, and more.
+3. Use the **Changes** panel to stage files, write a message and commit.
+4. Expand commits in the **History** tab of the **More** panel to see changed files and open diffs.
+5. Switch between History, Branches, Stashes and Overview in the **More** panel.
 
 If the workspace is not a Git repository, Celes shows an **Initialize Repository** button that runs `git init` after confirmation.
 
@@ -89,14 +84,15 @@ npx @vscode/vsce package
 ## Architecture
 
 ```
-UI (TreeViews / Commands) → GitService → GitCommandRunner → git
+UI (Webviews / Commands) → GitService → GitCommandRunner → git
 ```
 
 - `GitCommandRunner`: central, safe execution layer using `execFile` with argument arrays.
 - `GitService`: domain operations such as commit, branch management, and stash handling.
 - `Parsers`: convert raw Git output into typed models.
-- `Views`: native VS Code TreeView providers for each sidebar section.
-- `Commands`: handle user actions from the Command Palette and context menus.
+- `Webviews`: the Changes and More sidebar views plus the commit editor tab; they post messages to the extension host rather than running Git themselves.
+- `Views`: text document content providers backing the diff editors.
+- `Commands`: handle user actions from the Command Palette and the webviews.
 
 The UI never constructs arbitrary Git commands. All user input is validated and passed as separate arguments.
 
