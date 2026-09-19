@@ -109,7 +109,7 @@ If the workspace is not a Git repository, Celes shows an **Initialize Repository
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and the internal architecture.
+The development setup and the internal architecture are documented in `CONTRIBUTING.md`, in the source repository.
 
 ## License
 
