@@ -36,7 +36,7 @@ describe('GitService integration', () => {
   });
 
   it('should initialize a repository', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-init-');
+    const { repo, root: r } = await setupRepo('celes-init-');
     root = r;
     service = repo;
 
@@ -45,7 +45,7 @@ describe('GitService integration', () => {
   });
 
   it('should stage, commit and show history', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-commit-');
+    const { repo, root: r } = await setupRepo('celes-commit-');
     root = r;
     service = repo;
 
@@ -61,7 +61,7 @@ describe('GitService integration', () => {
   });
 
   it('should create and switch branches', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-branch-');
+    const { repo, root: r } = await setupRepo('celes-branch-');
     root = r;
     service = repo;
 
@@ -78,7 +78,7 @@ describe('GitService integration', () => {
   });
 
   it('should rename and delete branches safely', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-rename-');
+    const { repo, root: r } = await setupRepo('celes-rename-');
     root = r;
     service = repo;
 
@@ -96,7 +96,7 @@ describe('GitService integration', () => {
   });
 
   it('should create, apply and pop stash', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-stash-');
+    const { repo, root: r } = await setupRepo('celes-stash-');
     root = r;
     service = repo;
 
@@ -121,7 +121,7 @@ describe('GitService integration', () => {
   });
 
   it('should refuse to commit without staged changes', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-empty-commit-');
+    const { repo, root: r } = await setupRepo('celes-empty-commit-');
     root = r;
     service = repo;
 
@@ -135,7 +135,7 @@ describe('GitService integration', () => {
   });
 
   it('should detect uncommitted changes', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-changes-');
+    const { repo, root: r } = await setupRepo('celes-changes-');
     root = r;
     service = repo;
 
@@ -148,7 +148,7 @@ describe('GitService integration', () => {
   });
 
   it('should scope changes and history to the opened workspace folder', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-scope-');
+    const { repo, root: r } = await setupRepo('celes-scope-');
     root = r;
     service = repo;
 
@@ -157,7 +157,7 @@ describe('GitService integration', () => {
     await commitFile(service, root, 'pkg-a/inside.txt', 'a', 'pkg-a only');
     await commitFile(service, root, 'pkg-b/outside.txt', 'b', 'pkg-b only');
 
-    // Opening the pkg-a subfolder should limit GitDeck to that folder.
+    // Opening the pkg-a subfolder should limit Celes to that folder.
     const scoped = new GitService({ workspaceRoot: path.join(root, 'pkg-a'), scope: 'workspace' });
     assert.strictEqual(await scoped.detectRepository(), true);
     assert.strictEqual(scoped.getScopePath(), 'pkg-a');
@@ -192,7 +192,7 @@ describe('GitService integration', () => {
   });
 
   it('should keep the whole repository in scope when the workspace is the repo root', async () => {
-    const { repo, root: r } = await setupRepo('gitdeck-scope-root-');
+    const { repo, root: r } = await setupRepo('celes-scope-root-');
     root = r;
     service = repo;
 

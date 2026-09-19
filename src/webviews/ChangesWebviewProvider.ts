@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
-import { GITDECK_DIFF_SCHEME } from '../views/GitDeckDiffContentProvider';
-import { GITDECK_HEADER_CSS, gitdeckHeaderHtml } from './branding';
+import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
+import { CELES_HEADER_CSS, CELES_ICONS, celesHeaderHtml } from './branding';
 
 interface WebviewFile {
   path: string;
@@ -11,7 +11,7 @@ interface WebviewFile {
 }
 
 export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'gitdeckChanges';
+  public static readonly viewType = 'celesChanges';
   private view: vscode.WebviewView | undefined;
 
   constructor(
@@ -224,7 +224,7 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
 
       await vscode.commands.executeCommand(
         'vscode.diff',
-        uri.with({ scheme: GITDECK_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: 'HEAD' }) }),
+        uri.with({ scheme: CELES_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: 'HEAD' }) }),
         uri,
         title,
         { renderSideBySide: true, preview: false }
@@ -269,7 +269,7 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitDeck Changes</title>
+  <title>Celes Changes</title>
   <style>
     :root {
       --bg: var(--vscode-sideBar-background, var(--vscode-editor-background, #1e1e1e));
@@ -549,11 +549,11 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
     }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { background: var(--warning); }
-${GITDECK_HEADER_CSS}
+${CELES_HEADER_CSS}
   </style>
 </head>
 <body>
-${gitdeckHeaderHtml({ badgeId: 'branchBadge' })}
+${celesHeaderHtml({ badgeId: 'branchBadge' })}
 
   <div class="commit-box">
     <textarea id="message" placeholder="Message (required)"></textarea>
@@ -569,8 +569,8 @@ ${gitdeckHeaderHtml({ badgeId: 'branchBadge' })}
   </div>
 
   <div class="toolbar">
-    <button class="secondary toggle" id="treeToggle" title="Toggle tree view">🌳</button>
-    <button class="secondary" id="refreshBtn">↻</button>
+    <button class="secondary toggle icon-btn" id="treeToggle" title="Switch to list view" aria-label="Toggle tree view">${CELES_ICONS.tree}</button>
+    <button class="secondary icon-btn" id="refreshBtn" title="Refresh" aria-label="Refresh">${CELES_ICONS.refresh}</button>
   </div>
 
   <div id="sections"></div>
@@ -578,6 +578,7 @@ ${gitdeckHeaderHtml({ badgeId: 'branchBadge' })}
   <div class="toast" id="toast"></div>
 
   <script>
+    const ICONS = ${JSON.stringify(CELES_ICONS)};
     const vscode = acquireVsCodeApi();
     let state = { files: [], branch: 'unknown', treeView: true, collapsedFolders: new Set() };
 
@@ -636,9 +637,9 @@ ${gitdeckHeaderHtml({ badgeId: 'branchBadge' })}
         '<span class="badge ' + file.status + '">' + file.status + '</span>' +
         '<span class="file-actions">' +
           (isStaged
-            ? '<button class="unstage-one" title="Unstage">−</button>'
-            : '<button class="stage-one" title="Stage">+</button>') +
-          '<button class="discard-one" title="Discard">🗑</button>' +
+            ? '<button class="unstage-one icon-btn" title="Unstage" aria-label="Unstage">' + ICONS.minus + '</button>'
+            : '<button class="stage-one icon-btn" title="Stage" aria-label="Stage">' + ICONS.plus + '</button>') +
+          '<button class="discard-one icon-btn" title="Discard" aria-label="Discard">' + ICONS.trash + '</button>' +
         '</span>';
 
       el.querySelector('input').addEventListener('change', function(e) {
@@ -857,7 +858,7 @@ ${gitdeckHeaderHtml({ badgeId: 'branchBadge' })}
     treeToggle.addEventListener('click', function() {
       state.treeView = !state.treeView;
       treeToggle.title = state.treeView ? 'Switch to list view' : 'Switch to tree view';
-      treeToggle.textContent = state.treeView ? '🌳' : '☰';
+      treeToggle.innerHTML = state.treeView ? ICONS.tree : ICONS.list;
       render();
     });
 

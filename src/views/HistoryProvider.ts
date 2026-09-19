@@ -91,7 +91,7 @@ class HistoryTreeItem extends vscode.TreeItem {
       this.description = `${commit.shortSha} · ${commit.authorName}`;
       this.tooltip = `${commit.sha}\n${commit.authorName} <${commit.authorEmail}>\n${commit.date.toLocaleString()}\n\n${commit.message}`;
       this.iconPath = new vscode.ThemeIcon('git-commit');
-      this.contextValue = isLatest ? 'gitdeckLatestCommit' : 'gitdeckCommit';
+      this.contextValue = isLatest ? 'celesLatestCommit' : 'celesCommit';
     } else if (kind === 'file') {
       const file = item as GitCommitFile;
       const statusIcon = fileStatusIcon(file.status);
@@ -99,9 +99,9 @@ class HistoryTreeItem extends vscode.TreeItem {
       this.description = fileStatusLabel(file.status);
       this.tooltip = `${file.path}\n${fileStatusLabel(file.status)}`;
       this.iconPath = new vscode.ThemeIcon(statusIcon, new vscode.ThemeColor(statusColor));
-      this.contextValue = 'gitdeckCommitFile';
+      this.contextValue = 'celesCommitFile';
       this.command = {
-        command: 'gitdeck.openCommitFileDiff',
+        command: 'celes.openCommitFileDiff',
         title: 'Open Diff',
         arguments: [commit?.sha, file.path]
       };

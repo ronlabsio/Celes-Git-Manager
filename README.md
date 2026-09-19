@@ -1,8 +1,8 @@
-# GitDeck
+# Celes – Git Manager
 
 Visual Git management inside VS Code.
 
-GitDeck is a VS Code extension that provides a complete visual interface for **local Git operations**, reducing the need to type Git commands in the terminal. It does not reimplement Git — it invokes the system's `git` executable through safe subprocess calls.
+Celes is a VS Code extension that provides a complete visual interface for **local Git operations**, reducing the need to type Git commands in the terminal. It does not reimplement Git — it invokes the system's `git` executable through safe subprocess calls.
 
 ## Features
 
@@ -14,9 +14,9 @@ GitDeck is a VS Code extension that provides a complete visual interface for **l
 - **Branches**: list, create, checkout, rename, and safely delete local and remote branches.
 - **Stashes**: create, apply, pop, and delete stashes.
 - **Commit context actions**: rename the latest commit, undo the latest commit while keeping changes staged, and open the full commit diff.
-- **Monorepo folder scope**: when you open a package inside a larger repository, GitDeck only shows changes, commits and diffs for that folder.
+- **Monorepo folder scope**: when you open a package inside a larger repository, Celes only shows changes, commits and diffs for that folder.
 - **Educational UI**: every non-obvious operation is explained, and equivalent Git commands are shown when useful.
-- **Humanized Errors**: Git errors are translated into clear messages while preserving raw details in the GitDeck output channel.
+- **Humanized Errors**: Git errors are translated into clear messages while preserving raw details in the Celes output channel.
 
 ## Screenshots
 
@@ -31,38 +31,38 @@ You can optionally configure a custom Git path:
 
 ```json
 {
-  "gitdeck.gitPath": "/usr/local/bin/git"
+  "celes.gitPath": "/usr/local/bin/git"
 }
 ```
 
 ### Working in a monorepo
 
-If you open a subfolder of a repository (for example `packages/api` inside a monorepo), GitDeck scopes the
+If you open a subfolder of a repository (for example `packages/api` inside a monorepo), Celes scopes the
 Changes panel, the commit history and commit file lists to that folder by default. The branch badge shows the
 scope so you always know what is being displayed.
 
 ```json
 {
-  "gitdeck.scope": "workspace"
+  "celes.scope": "workspace"
 }
 ```
 
 - `workspace` (default): only the opened folder.
 - `repository`: the entire repository, even when a subfolder is opened.
 
-You can also toggle it from the command palette with **GitDeck: Toggle Folder Scope**, or from the **Scope**
+You can also toggle it from the command palette with **Celes: Toggle Folder Scope**, or from the **Scope**
 button in the More panel under Overview.
 
 ## Usage
 
 1. Open a workspace that contains a Git repository.
-2. Click the **GitDeck** icon in the Activity Bar.
+2. Click the **Celes** icon in the Activity Bar.
 3. Use the **Commit** panel to stage files and commit.
 4. Expand commits in the **History** panel to see changed files and open diffs.
 5. Switch between Branches, Stashes and Overview in the **More** panel.
 4. Click actions on items to stage, unstage, commit, switch branches, and more.
 
-If the workspace is not a Git repository, GitDeck shows an **Initialize Repository** button that runs `git init` after confirmation.
+If the workspace is not a Git repository, Celes shows an **Initialize Repository** button that runs `git init` after confirmation.
 
 ## Development Setup
 

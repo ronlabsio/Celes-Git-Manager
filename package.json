@@ -1,7 +1,7 @@
 {
-  "name": "gitdeck",
-  "displayName": "GitDeck",
-  "description": "Visual Git management inside VS Code.",
+  "name": "celes-git-manager",
+  "displayName": "Celes – Git Manager",
+  "description": "Visual Git management inside VS Code: stage, commit, branches, stashes and history in one panel.",
   "version": "0.1.2",
   "publisher": "ronaldlopes",
   "icon": "resources/icon.png",
@@ -16,7 +16,8 @@
     "git",
     "scm",
     "source control",
-    "visual"
+    "visual",
+    "celes"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -24,14 +25,14 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "GitDeck",
+      "title": "Celes – Git Manager",
       "properties": {
-        "gitdeck.gitPath": {
+        "celes.gitPath": {
           "type": "string",
           "default": "",
           "description": "Path to the git executable. Leave empty to detect automatically."
         },
-        "gitdeck.logLevel": {
+        "celes.logLevel": {
           "type": "string",
           "default": "info",
           "enum": [
@@ -40,9 +41,9 @@
             "info",
             "debug"
           ],
-          "description": "Log level for the GitDeck output channel."
+          "description": "Log level for the Celes output channel."
         },
-        "gitdeck.scope": {
+        "celes.scope": {
           "type": "string",
           "default": "workspace",
           "enum": [
@@ -53,298 +54,298 @@
             "Only show changes and commits for the opened folder. Use this in monorepos when you open a package subfolder.",
             "Show changes and commits for the entire Git repository, even when you open a subfolder."
           ],
-          "description": "Which part of the repository GitDeck should display and operate on."
+          "description": "Which part of the repository Celes should display and operate on."
         }
       }
     },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "gitdeck",
-          "title": "GitDeck",
-          "icon": "resources/gitdeck.svg"
+          "id": "celes",
+          "title": "Celes – Git Manager",
+          "icon": "resources/celes.svg"
         }
       ]
     },
     "views": {
-      "gitdeck": [
+      "celes": [
         {
-          "id": "gitdeckChanges",
+          "id": "celesChanges",
           "name": "Changes",
           "type": "webview",
-          "when": "gitdeck:enabled"
+          "when": "celes:enabled"
         },
         {
-          "id": "gitdeckMore",
+          "id": "celesMore",
           "name": "More",
           "type": "webview",
-          "when": "gitdeck:enabled"
+          "when": "celes:enabled"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "gitdeck.refresh",
-          "when": "view == gitdeckOverview",
+          "command": "celes.refresh",
+          "when": "view == celesOverview",
           "group": "navigation"
         },
         {
-          "command": "gitdeck.refresh",
-          "when": "view == gitdeckChanges",
+          "command": "celes.refresh",
+          "when": "view == celesChanges",
           "group": "navigation"
         },
         {
-          "command": "gitdeck.openCommitPanel",
-          "when": "view == gitdeckChanges",
+          "command": "celes.openCommitPanel",
+          "when": "view == celesChanges",
           "group": "navigation@1"
         },
         {
-          "command": "gitdeck.stageAll",
-          "when": "view == gitdeckChanges",
+          "command": "celes.stageAll",
+          "when": "view == celesChanges",
           "group": "navigation@2"
         },
         {
-          "command": "gitdeck.unstageAll",
-          "when": "view == gitdeckChanges",
+          "command": "celes.unstageAll",
+          "when": "view == celesChanges",
           "group": "navigation@3"
         }
       ],
       "view/item/context": [
         {
-          "command": "gitdeck.checkoutBranch",
-          "when": "viewItem == gitdeckLocalBranch",
+          "command": "celes.checkoutBranch",
+          "when": "viewItem == celesLocalBranch",
           "group": "inline"
         },
         {
-          "command": "gitdeck.deleteBranch",
-          "when": "viewItem == gitdeckLocalBranch",
+          "command": "celes.deleteBranch",
+          "when": "viewItem == celesLocalBranch",
           "group": "inline"
         },
         {
-          "command": "gitdeck.renameBranch",
-          "when": "viewItem == gitdeckLocalBranch",
+          "command": "celes.renameBranch",
+          "when": "viewItem == celesLocalBranch",
           "group": "inline"
         },
         {
-          "command": "gitdeck.applyStash",
-          "when": "viewItem == gitdeckStash",
+          "command": "celes.applyStash",
+          "when": "viewItem == celesStash",
           "group": "inline"
         },
         {
-          "command": "gitdeck.popStash",
-          "when": "viewItem == gitdeckStash",
+          "command": "celes.popStash",
+          "when": "viewItem == celesStash",
           "group": "inline"
         },
         {
-          "command": "gitdeck.deleteStash",
-          "when": "viewItem == gitdeckStash",
+          "command": "celes.deleteStash",
+          "when": "viewItem == celesStash",
           "group": "inline"
         },
         {
-          "command": "gitdeck.renameCommit",
-          "when": "viewItem == gitdeckLatestCommit",
+          "command": "celes.renameCommit",
+          "when": "viewItem == celesLatestCommit",
           "group": "9_cutcopypaste@1"
         },
         {
-          "command": "gitdeck.undoCommit",
-          "when": "viewItem == gitdeckLatestCommit",
+          "command": "celes.undoCommit",
+          "when": "viewItem == celesLatestCommit",
           "group": "9_cutcopypaste@2"
         },
         {
-          "command": "gitdeck.showCommitDiff",
-          "when": "viewItem == gitdeckCommit || viewItem == gitdeckLatestCommit",
+          "command": "celes.showCommitDiff",
+          "when": "viewItem == celesCommit || viewItem == celesLatestCommit",
           "group": "9_cutcopypaste@3"
         },
         {
-          "command": "gitdeck.openCommitFileDiff",
-          "when": "viewItem == gitdeckCommitFile",
+          "command": "celes.openCommitFileDiff",
+          "when": "viewItem == celesCommitFile",
           "group": "inline"
         }
       ],
       "commandPalette": [
         {
-          "command": "gitdeck.initializeRepository",
-          "when": "!gitdeck:enabled"
+          "command": "celes.initializeRepository",
+          "when": "!celes:enabled"
         },
         {
-          "command": "gitdeck.stageFile",
-          "when": "gitdeck:enabled"
+          "command": "celes.stageFile",
+          "when": "celes:enabled"
         },
         {
-          "command": "gitdeck.unstageFile",
-          "when": "gitdeck:enabled"
+          "command": "celes.unstageFile",
+          "when": "celes:enabled"
         },
         {
-          "command": "gitdeck.discardFile",
-          "when": "gitdeck:enabled"
+          "command": "celes.discardFile",
+          "when": "celes:enabled"
         }
       ]
     },
     "commands": [
       {
-        "command": "gitdeck.open",
+        "command": "celes.open",
         "title": "Open",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.refresh",
+        "command": "celes.refresh",
         "title": "Refresh",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(refresh)"
       },
       {
-        "command": "gitdeck.toggleScope",
+        "command": "celes.toggleScope",
         "title": "Toggle Folder Scope (opened folder / whole repository)",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(folder)"
       },
       {
-        "command": "gitdeck.initializeRepository",
+        "command": "celes.initializeRepository",
         "title": "Initialize Repository",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.fetch",
+        "command": "celes.fetch",
         "title": "Fetch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.pull",
+        "command": "celes.pull",
         "title": "Pull",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.push",
+        "command": "celes.push",
         "title": "Push",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.publishBranch",
+        "command": "celes.publishBranch",
         "title": "Publish Branch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.commit",
+        "command": "celes.commit",
         "title": "Commit",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(check)"
       },
       {
-        "command": "gitdeck.openCommitPanel",
+        "command": "celes.openCommitPanel",
         "title": "Open Commit Panel",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(git-commit)"
       },
       {
-        "command": "gitdeck.amendCommit",
+        "command": "celes.amendCommit",
         "title": "Amend Previous Commit",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.stageFile",
+        "command": "celes.stageFile",
         "title": "Stage",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(plus)"
       },
       {
-        "command": "gitdeck.unstageFile",
+        "command": "celes.unstageFile",
         "title": "Unstage",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(minus)"
       },
       {
-        "command": "gitdeck.stageAll",
+        "command": "celes.stageAll",
         "title": "Stage All Changes",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(plus)"
       },
       {
-        "command": "gitdeck.unstageAll",
+        "command": "celes.unstageAll",
         "title": "Unstage All Changes",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(minus)"
       },
       {
-        "command": "gitdeck.discardFile",
+        "command": "celes.discardFile",
         "title": "Discard Changes",
-        "category": "GitDeck",
+        "category": "Celes",
         "icon": "$(discard)"
       },
       {
-        "command": "gitdeck.openFile",
+        "command": "celes.openFile",
         "title": "Open File",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.openDiff",
+        "command": "celes.openDiff",
         "title": "Open Diff",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.createBranch",
+        "command": "celes.createBranch",
         "title": "Create Branch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.checkoutBranch",
+        "command": "celes.checkoutBranch",
         "title": "Checkout Branch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.renameBranch",
+        "command": "celes.renameBranch",
         "title": "Rename Branch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.deleteBranch",
+        "command": "celes.deleteBranch",
         "title": "Delete Branch",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.createStash",
+        "command": "celes.createStash",
         "title": "Create Stash",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.applyStash",
+        "command": "celes.applyStash",
         "title": "Apply Stash",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.popStash",
+        "command": "celes.popStash",
         "title": "Pop Stash",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.deleteStash",
+        "command": "celes.deleteStash",
         "title": "Delete Stash",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.showCommitDetails",
+        "command": "celes.showCommitDetails",
         "title": "Show Commit Details",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.renameCommit",
+        "command": "celes.renameCommit",
         "title": "Rename Commit",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.undoCommit",
+        "command": "celes.undoCommit",
         "title": "Undo Commit (Keep Changes)",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.showCommitDiff",
+        "command": "celes.showCommitDiff",
         "title": "Show Changes Side by Side",
-        "category": "GitDeck"
+        "category": "Celes"
       },
       {
-        "command": "gitdeck.openCommitFileDiff",
+        "command": "celes.openCommitFileDiff",
         "title": "Open Diff",
-        "category": "GitDeck"
+        "category": "Celes"
       }
     ]
   },

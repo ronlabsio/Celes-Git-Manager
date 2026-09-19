@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
-import { GITDECK_HEADER_CSS, gitdeckHeaderHtml } from './branding';
+import { CELES_HEADER_CSS, CELES_ICONS, celesHeaderHtml } from './branding';
 
 export class CommitPanel {
-  public static readonly viewType = 'gitdeck.commitPanel';
+  public static readonly viewType = 'celes.commitPanel';
   private panel: vscode.WebviewPanel | undefined;
 
   constructor(
@@ -23,7 +23,7 @@ export class CommitPanel {
 
     this.panel = vscode.window.createWebviewPanel(
       CommitPanel.viewType,
-      'GitDeck: Commit',
+      'Celes: Commit',
       vscode.ViewColumn.One,
       {
         enableScripts: true,
@@ -202,7 +202,7 @@ export class CommitPanel {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitDeck Commit</title>
+  <title>Celes Commit</title>
   <style>
     :root {
       --bg: var(--vscode-editor-background, #1e1e1e);
@@ -249,17 +249,17 @@ export class CommitPanel {
     }
     h1 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
 
-    ${GITDECK_HEADER_CSS}
+    ${CELES_HEADER_CSS}
   </style>
 </head>
 <body>
-${gitdeckHeaderHtml({ badgeId: 'branch' })}
+${celesHeaderHtml({ badgeId: 'branch' })}
 
   <div class="main">
     <div class="panel">
       <div class="panel-header">
         <span>Changed files <small id="fileCount">(0)</small></span>
-        <button class="secondary" id="refreshBtn" title="Refresh">↻</button>
+        <button class="secondary" id="refreshBtn" title="Refresh" aria-label="Refresh">${CELES_ICONS.refresh}</button>
       </div>
       <div class="toolbar">
         <button class="secondary" id="selectAllBtn">Select all</button>

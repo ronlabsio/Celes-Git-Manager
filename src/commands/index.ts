@@ -6,7 +6,7 @@ import { explain } from '../utils/gitExplain';
 import { GitFileChange } from '../models';
 import { CommitPanel } from '../webviews/CommitPanel';
 import { EMPTY_DIFF_SCHEME } from '../views/EmptyDiffContentProvider';
-import { GITDECK_DIFF_SCHEME } from '../views/GitDeckDiffContentProvider';
+import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
 
 function logError(outputChannel: vscode.OutputChannel, operation: string, err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
@@ -55,12 +55,12 @@ async function leftDiffUri(gitService: GitService, filePath: string, sha: string
   if (isRoot) {
     return uri.with({ scheme: EMPTY_DIFF_SCHEME });
   }
-  return uri.with({ scheme: GITDECK_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: `${sha}^` }) });
+  return uri.with({ scheme: CELES_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: `${sha}^` }) });
 }
 
 async function rightDiffUri(gitService: GitService, filePath: string, sha: string): Promise<vscode.Uri> {
   const absolute = await gitService.getAbsolutePath(filePath);
-  return vscode.Uri.file(absolute).with({ scheme: GITDECK_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: sha }) });
+  return vscode.Uri.file(absolute).with({ scheme: CELES_DIFF_SCHEME, query: JSON.stringify({ path: filePath, ref: sha }) });
 }
 
 export function registerCommands(
@@ -74,16 +74,16 @@ export function registerCommands(
     context.subscriptions.push(vscode.commands.registerCommand(command, handler as (...args: unknown[]) => unknown));
   };
 
-  register('gitdeck.open', () => {
-    void vscode.commands.executeCommand('gitdeckOverview.focus');
+  register('celes.open', () => {
+    void vscode.commands.executeCommand('celesOverview.focus');
   });
 
-  register('gitdeck.refresh', () => {
+  register('celes.refresh', () => {
     refreshAll();
   });
 
-  register('gitdeck.toggleScope', async () => {
-    const config = vscode.workspace.getConfiguration('gitdeck');
+  register('celes.toggleScope', async () => {
+    const config = vscode.workspace.getConfiguration('celes');
     const current = config.get<string>('scope') ?? 'workspace';
     const next = current === 'workspace' ? 'repository' : 'workspace';
     const target = vscode.workspace.workspaceFile
@@ -96,8 +96,8 @@ export function registerCommands(
       refreshAll();
       vscode.window.showInformationMessage(
         next === 'workspace'
-          ? 'GitDeck now shows only the opened folder.'
-          : 'GitDeck now shows the whole repository.'
+          ? 'Celes now shows only the opened folder.'
+          : 'Celes now shows the whole repository.'
       );
     } catch (err) {
       logError(outputChannel, 'toggleScope', err);
@@ -105,7 +105,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.initializeRepository', async () => {
+  register('celes.initializeRepository', async () => {
     const choice = await vscode.window.showInformationMessage(
       'Initialize a Git repository? This creates a .git folder and starts tracking changes in this workspace.',
       'Initialize',
@@ -117,7 +117,7 @@ export function registerCommands(
 
     try {
       await gitService.initializeRepository();
-      await vscode.commands.executeCommand('setContext', 'gitdeck:enabled', true);
+      await vscode.commands.executeCommand('setContext', 'celes:enabled', true);
       refreshAll();
       vscode.window.showInformationMessage('Git repository initialized.');
     } catch (err) {
@@ -126,7 +126,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.fetch', async () => {
+  register('celes.fetch', async () => {
     try {
       await withProgress('Fetching from remote...', () => gitService.fetch());
       refreshAll();
@@ -142,7 +142,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.pull', async () => {
+  register('celes.pull', async () => {
     const info = explain('pull');
     const choice = await vscode.window.showInformationMessage(
       `${info?.description ?? 'Pull remote changes.'}`,
@@ -163,7 +163,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.push', async () => {
+  register('celes.push', async () => {
     try {
       await withProgress('Pushing to remote...', () => gitService.push());
       refreshAll();
@@ -174,7 +174,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.publishBranch', async () => {
+  register('celes.publishBranch', async () => {
     const status = await gitService.getRepositoryStatus().catch(() => undefined);
     const branch = status?.currentBranch;
     if (!branch) {
@@ -202,13 +202,13 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.openCommitPanel', async () => {
+  register('celes.openCommitPanel', async () => {
     if (commitPanel) {
       await commitPanel.show();
     }
   });
 
-  register('gitdeck.commit', async () => {
+  register('celes.commit', async () => {
     if (commitPanel) {
       await commitPanel.show();
       return;
@@ -235,7 +235,7 @@ export function registerCommands(
       refreshAll();
       vscode.window.showInformationMessage(`Committed ${changes.staged.length} file(s).`, 'Push').then((sel) => {
         if (sel === 'Push') {
-          void vscode.commands.executeCommand('gitdeck.push');
+          void vscode.commands.executeCommand('celes.push');
         }
       });
     } catch (err) {
@@ -244,7 +244,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.amendCommit', async () => {
+  register('celes.amendCommit', async () => {
     const choice = await vscode.window.showInformationMessage(
       'Amend the previous commit to include staged changes?',
       'Amend',
@@ -269,7 +269,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.stageFile', async (file?: GitFileChange) => {
+  register('celes.stageFile', async (file?: GitFileChange) => {
     if (!file?.path) {
       return;
     }
@@ -282,7 +282,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.unstageFile', async (file?: GitFileChange) => {
+  register('celes.unstageFile', async (file?: GitFileChange) => {
     if (!file?.path) {
       return;
     }
@@ -295,7 +295,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.stageAll', async () => {
+  register('celes.stageAll', async () => {
     try {
       await gitService.stageAll();
       refreshAll();
@@ -305,7 +305,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.unstageAll', async () => {
+  register('celes.unstageAll', async () => {
     try {
       await gitService.unstageAll();
       refreshAll();
@@ -315,7 +315,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.discardFile', async (file?: GitFileChange) => {
+  register('celes.discardFile', async (file?: GitFileChange) => {
     if (!file?.path) {
       return;
     }
@@ -342,7 +342,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.openFile', async (filePath?: string) => {
+  register('celes.openFile', async (filePath?: string) => {
     if (!filePath) {
       return;
     }
@@ -356,7 +356,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.openDiff', async (file?: GitFileChange) => {
+  register('celes.openDiff', async (file?: GitFileChange) => {
     if (!file?.path) {
       return;
     }
@@ -367,7 +367,7 @@ export function registerCommands(
 
       await vscode.commands.executeCommand(
         'vscode.diff',
-        uri.with({ scheme: GITDECK_DIFF_SCHEME, query: JSON.stringify({ path: file.path, ref: 'HEAD' }) }),
+        uri.with({ scheme: CELES_DIFF_SCHEME, query: JSON.stringify({ path: file.path, ref: 'HEAD' }) }),
         uri,
         title
       );
@@ -377,7 +377,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.createBranch', async () => {
+  register('celes.createBranch', async () => {
     const name = await vscode.window.showInputBox({
       prompt: 'New branch name',
       validateInput: (value) => (value?.trim() ? undefined : 'Branch name cannot be empty.')
@@ -396,7 +396,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.checkoutBranch', async (branch?: { name: string }) => {
+  register('celes.checkoutBranch', async (branch?: { name: string }) => {
     const target = branch?.name || (await vscode.window.showInputBox({ prompt: 'Branch name' }));
     if (!target?.trim()) {
       return;
@@ -412,7 +412,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.renameBranch', async (branch?: { name: string }) => {
+  register('celes.renameBranch', async (branch?: { name: string }) => {
     const oldName = branch?.name || (await vscode.window.showInputBox({ prompt: 'Branch to rename' }));
     if (!oldName?.trim()) {
       return;
@@ -435,7 +435,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.deleteBranch', async (branch?: { name: string }) => {
+  register('celes.deleteBranch', async (branch?: { name: string }) => {
     const name = branch?.name || (await vscode.window.showInputBox({ prompt: 'Branch to delete' }));
     if (!name?.trim()) {
       return;
@@ -462,7 +462,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.createStash', async () => {
+  register('celes.createStash', async () => {
     const message = await vscode.window.showInputBox({
       prompt: 'Stash message (optional)',
       placeHolder: 'WIP on current branch'
@@ -481,7 +481,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.applyStash', async (stash?: { index: number }) => {
+  register('celes.applyStash', async (stash?: { index: number }) => {
     if (stash === undefined) {
       return;
     }
@@ -505,7 +505,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.popStash', async (stash?: { index: number }) => {
+  register('celes.popStash', async (stash?: { index: number }) => {
     if (stash === undefined) {
       return;
     }
@@ -529,7 +529,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.deleteStash', async (stash?: { index: number }) => {
+  register('celes.deleteStash', async (stash?: { index: number }) => {
     if (stash === undefined) {
       return;
     }
@@ -554,7 +554,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.showCommitDetails', async (sha?: string) => {
+  register('celes.showCommitDetails', async (sha?: string) => {
     if (!sha) {
       return;
     }
@@ -585,7 +585,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.renameCommit', async (sha?: string) => {
+  register('celes.renameCommit', async (sha?: string) => {
     if (!sha) {
       return;
     }
@@ -606,7 +606,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.undoCommit', async (sha?: string) => {
+  register('celes.undoCommit', async (sha?: string) => {
     if (!sha) {
       return;
     }
@@ -628,7 +628,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.showCommitDiff', async (sha?: string) => {
+  register('celes.showCommitDiff', async (sha?: string) => {
     if (!sha) {
       return;
     }
@@ -650,7 +650,7 @@ export function registerCommands(
     }
   });
 
-  register('gitdeck.openCommitFileDiff', async (sha?: string, filePath?: string) => {
+  register('celes.openCommitFileDiff', async (sha?: string, filePath?: string) => {
     if (!sha || !filePath) {
       return;
     }

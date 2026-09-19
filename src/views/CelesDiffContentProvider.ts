@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 
-export const GITDECK_DIFF_SCHEME = 'gitdeck-diff';
+export const CELES_DIFF_SCHEME = 'celes-diff';
 
-export class GitDeckDiffContentProvider implements vscode.TextDocumentContentProvider {
+export class CelesDiffContentProvider implements vscode.TextDocumentContentProvider {
   constructor(private readonly gitService: GitService) {}
 
   async provideTextDocumentContent(uri: vscode.Uri): Promise<string> {

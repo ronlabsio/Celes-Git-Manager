@@ -1,66 +1,81 @@
-export const GITDECK_MARK_SVG = `<svg class="gd-mark" viewBox="0 0 256 256" width="26" height="26" aria-hidden="true" focusable="false">
+export const CELES_MARK_SVG = `<svg class="celes-mark" viewBox="0 0 256 256" width="24" height="24" aria-hidden="true" focusable="false">
   <defs>
-    <linearGradient id="gd-hdr-bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7C3AED"/>
-      <stop offset="0.5" stop-color="#4F46E5"/>
-      <stop offset="1" stop-color="#06B6D4"/>
+    <linearGradient id="celes-hdr-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4F46E5"/>
+      <stop offset="0.55" stop-color="#6D28D9"/>
+      <stop offset="1" stop-color="#0E7490"/>
     </linearGradient>
-    <linearGradient id="gd-hdr-gloss" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.32"/>
-      <stop offset="0.65" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="gd-hdr-card" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="1" stop-color="#E0E7FF"/>
+    <linearGradient id="celes-hdr-gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.26"/>
+      <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#gd-hdr-bg)"/>
-  <rect x="12" y="12" width="232" height="232" rx="56" fill="url(#gd-hdr-gloss)"/>
-  <rect x="86" y="74" width="112" height="24" rx="12" fill="url(#gd-hdr-card)" opacity="0.55"/>
-  <rect x="72" y="106" width="126" height="24" rx="12" fill="url(#gd-hdr-card)" opacity="0.8"/>
-  <rect x="58" y="138" width="140" height="44" rx="16" fill="url(#gd-hdr-card)"/>
-  <g fill="none" stroke="#4F46E5" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M88 160 L88 92"/>
-    <path d="M88 108 C88 92 100 84 116 84 L132 84"/>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#celes-hdr-bg)"/>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#celes-hdr-gloss)"/>
+  <g stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" fill="none">
+    <path d="M86 92 L86 164"/>
+    <path d="M170 106 L170 124 C170 150 152 164 126 164 L86 164"/>
   </g>
-  <circle cx="88" cy="160" r="14" fill="#4F46E5"/>
-  <circle cx="88" cy="92" r="8" fill="#4F46E5"/>
-  <circle cx="140" cy="84" r="14" fill="#7C3AED"/>
-  <path d="M140 98 L140 116 C140 132 152 140 166 140 L178 140" fill="none" stroke="#7C3AED" stroke-width="11" stroke-linecap="round"/>
-  <circle cx="178" cy="140" r="14" fill="#06B6D4"/>
+  <g fill="#FFFFFF">
+    <circle cx="86" cy="72" r="20"/>
+    <circle cx="86" cy="184" r="20"/>
+    <circle cx="170" cy="86" r="20"/>
+  </g>
 </svg>`;
 
-export function gitdeckHeaderHtml(options: { subtitle?: string; badgeId?: string; badgeText?: string }): string {
-  const subtitle = options.subtitle ? `<span class="gd-subtitle">${options.subtitle}</span>` : '';
-  const badgeId = options.badgeId ?? 'gdBadge';
+function glyph(body: string, extraClass = ''): string {
+  const cls = extraClass ? `celes-icon ${extraClass}` : 'celes-icon';
+  return `<svg class="${cls}" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+}
+
+/** Inline SVG glyphs used across the webviews (no emoji, so they inherit theme colors). */
+export const CELES_ICONS = {
+  refresh: glyph('<path d="M13.5 8a5.5 5.5 0 1 1-1.7-3.96"/><path d="M13.6 2.4V5.3H10.7"/>'),
+  tree: glyph('<path d="M3 3.5h3"/><path d="M4.5 3.5v8.5h3"/><path d="M4.5 7.75h3"/><path d="M8.5 2.25h4.5"/><path d="M8.5 7.75h4.5"/><path d="M8.5 12h4.5"/>'),
+  list: glyph('<path d="M3 4h10"/><path d="M3 8h10"/><path d="M3 12h10"/>'),
+  trash: glyph('<path d="M2.75 4.25h10.5"/><path d="M6.5 4.25V2.75h3v1.5"/><path d="M4.25 4.25l.6 8.1a.9.9 0 0 0 .9.9h4.5a.9.9 0 0 0 .9-.9l.6-8.1"/>'),
+  pencil: glyph('<path d="M11.1 2.6a1.4 1.4 0 0 1 2 2l-7 7-2.7.7.7-2.7z"/>'),
+  branch: glyph('<circle cx="4.5" cy="3.5" r="1.6"/><circle cx="4.5" cy="12.5" r="1.6"/><circle cx="11.5" cy="4.75" r="1.6"/><path d="M4.5 5.1v5.8"/><path d="M11.5 6.35v.9a3.4 3.4 0 0 1-3.4 3.4H4.5"/>'),
+  cloud: glyph('<path d="M4.6 12.25a2.85 2.85 0 0 1-.3-5.68 3.6 3.6 0 0 1 6.86-.83 2.75 2.75 0 0 1 .34 5.4z"/>'),
+  archive: glyph('<path d="M2.25 4.25h11.5v2.2H2.25z"/><path d="M3.25 6.45v6.3h9.5v-6.3"/><path d="M6.5 9h3"/>'),
+  arrowUp: glyph('<path d="M8 13V3.5"/><path d="M4.25 7.25 8 3.5l3.75 3.75"/>'),
+  arrowDown: glyph('<path d="M8 3v9.5"/><path d="M4.25 8.75 8 12.5l3.75-3.75"/>'),
+  check: glyph('<path d="M3 8.5 6.5 12 13 4.5"/>'),
+  plus: glyph('<path d="M8 3.25v9.5"/><path d="M3.25 8h9.5"/>'),
+  minus: glyph('<path d="M3.25 8h9.5"/>')
+} as const;
+
+export function celesHeaderHtml(options: { subtitle?: string; badgeId?: string; badgeText?: string }): string {
+  const subtitle = options.subtitle ? `<span class="celes-subtitle">${options.subtitle}</span>` : '';
+  const badgeId = options.badgeId ?? 'celesBadge';
   const badgeText = options.badgeText ?? '';
-  return `<header class="gd-header">
-    ${GITDECK_MARK_SVG}
-    <div class="gd-titles">
-      <div class="gd-title-row">
-        <span class="gd-title">GitDeck</span>
+  return `<header class="celes-header">
+    ${CELES_MARK_SVG}
+    <div class="celes-titles">
+      <div class="celes-title-row">
+        <span class="celes-title">Celes</span>
         ${subtitle}
       </div>
-      <span class="gd-tagline">Visual Git, without the ceremony</span>
+      <span class="celes-tagline">Git Manager</span>
     </div>
-    <span class="gd-badge" id="${badgeId}" title="Current branch">${badgeText}</span>
+    <span class="celes-badge" id="${badgeId}" title="Current branch">${badgeText}</span>
   </header>`;
 }
 
-export const GITDECK_HEADER_CSS = `
-    .gd-header {
+export const CELES_HEADER_CSS = `
+    .celes-header {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 8px 10px;
       margin: -10px -10px 10px -10px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(124, 58, 237, 0.16), rgba(6, 182, 212, 0.12));
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.16), rgba(14, 116, 144, 0.12));
     }
-    .gd-header .gd-mark { flex-shrink: 0; border-radius: 7px; }
-    .gd-header .gd-titles { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .gd-header .gd-title-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-    .gd-header .gd-title {
+    .celes-header .celes-mark { flex-shrink: 0; border-radius: 6px; }
+    .celes-header .celes-titles { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+    .celes-header .celes-title-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+    .celes-header .celes-title {
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 0.2px;
@@ -69,21 +84,21 @@ export const GITDECK_HEADER_CSS = `
       background-clip: text;
       color: transparent;
     }
-    .gd-header .gd-subtitle {
+    .celes-header .celes-subtitle {
       font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.6px;
       opacity: 0.75;
       white-space: nowrap;
     }
-    .gd-header .gd-tagline {
+    .celes-header .celes-tagline {
       font-size: 10px;
       opacity: 0.6;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .gd-header .gd-badge {
+    .celes-header .celes-badge {
       flex-shrink: 0;
       max-width: 45%;
       padding: 2px 8px;
@@ -96,4 +111,6 @@ export const GITDECK_HEADER_CSS = `
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .celes-icon { vertical-align: -2px; flex-shrink: 0; }
+    button .celes-icon { pointer-events: none; }
 `;

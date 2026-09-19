@@ -7,7 +7,7 @@ import { CommitPanel } from './webviews/CommitPanel';
 import { ChangesWebviewProvider } from './webviews/ChangesWebviewProvider';
 import { MoreWebviewProvider } from './webviews/MoreWebviewProvider';
 import { EmptyDiffContentProvider, EMPTY_DIFF_SCHEME } from './views/EmptyDiffContentProvider';
-import { GitDeckDiffContentProvider, GITDECK_DIFF_SCHEME } from './views/GitDeckDiffContentProvider';
+import { CelesDiffContentProvider, CELES_DIFF_SCHEME } from './views/CelesDiffContentProvider';
 
 let gitService: GitService | undefined;
 let changesWebviewProvider: ChangesWebviewProvider | undefined;
@@ -16,7 +16,7 @@ let outputChannel: vscode.OutputChannel | undefined;
 let commitPanel: CommitPanel | undefined;
 
 export function getScopeMode(): GitScopeMode {
-  const config = vscode.workspace.getConfiguration('gitdeck');
+  const config = vscode.workspace.getConfiguration('celes');
   return config.get<GitScopeMode>('scope') ?? 'workspace';
 }
 
@@ -34,23 +34,23 @@ export function refreshAll(): void {
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
-  outputChannel = vscode.window.createOutputChannel('GitDeck');
+  outputChannel = vscode.window.createOutputChannel('Celes');
   context.subscriptions.push(outputChannel);
 
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (!workspaceFolders || workspaceFolders.length === 0) {
-    outputChannel.appendLine('No workspace folder open. GitDeck will activate when a folder is opened.');
+    outputChannel.appendLine('No workspace folder open. Celes will activate when a folder is opened.');
     return;
   }
 
   const workspaceRoot = workspaceFolders[0].uri.fsPath;
-  const config = vscode.workspace.getConfiguration('gitdeck');
+  const config = vscode.workspace.getConfiguration('celes');
   const gitPath = config.get<string>('gitPath') || undefined;
 
   gitService = new GitService({ workspaceRoot, gitPath, scope: getScopeMode() });
 
   const isRepo = await gitService.detectRepository();
-  await vscode.commands.executeCommand('setContext', 'gitdeck:enabled', isRepo);
+  await vscode.commands.executeCommand('setContext', 'celes:enabled', isRepo);
 
   changesWebviewProvider = new ChangesWebviewProvider(context.extensionUri, gitService, refreshAll, outputChannel);
   moreWebviewProvider = new MoreWebviewProvider(context.extensionUri, gitService, refreshAll, outputChannel);
@@ -64,8 +64,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }),
     vscode.workspace.registerTextDocumentContentProvider(EMPTY_DIFF_SCHEME, new EmptyDiffContentProvider()),
     vscode.workspace.registerTextDocumentContentProvider(
-      GITDECK_DIFF_SCHEME,
-      new GitDeckDiffContentProvider(gitService)
+      CELES_DIFF_SCHEME,
+      new CelesDiffContentProvider(gitService)
     )
   ];
 
@@ -111,7 +111,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('gitdeck.scope')) {
+      if (event.affectsConfiguration('celes.scope')) {
         gitService?.setScopeMode(getScopeMode());
         refreshAll();
       }

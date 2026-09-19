@@ -28,7 +28,7 @@ export class OverviewProvider implements vscode.TreeDataProvider<OverviewItem> {
     if (!this.status?.isGitRepository) {
       return [
         new OverviewItem('No Git repository found.', '', {
-          command: 'gitdeck.initializeRepository',
+          command: 'celes.initializeRepository',
           title: 'Initialize Repository'
         })
       ];
@@ -66,10 +66,10 @@ export class OverviewProvider implements vscode.TreeDataProvider<OverviewItem> {
 
     items.push(
       new OverviewItem('Actions', '', undefined, [
-        new OverviewItem('$(cloud-download) Fetch', 'Downloads remote references', { command: 'gitdeck.fetch', title: 'Fetch' }),
-        new OverviewItem('$(cloud-download) Pull', 'Integrate remote changes', { command: 'gitdeck.pull', title: 'Pull' }),
-        new OverviewItem('$(cloud-upload) Push', 'Upload local commits', { command: 'gitdeck.push', title: 'Push' }),
-        new OverviewItem('$(refresh) Refresh', 'Update GitDeck state', { command: 'gitdeck.refresh', title: 'Refresh' })
+        new OverviewItem('$(cloud-download) Fetch', 'Downloads remote references', { command: 'celes.fetch', title: 'Fetch' }),
+        new OverviewItem('$(cloud-download) Pull', 'Integrate remote changes', { command: 'celes.pull', title: 'Pull' }),
+        new OverviewItem('$(cloud-upload) Push', 'Upload local commits', { command: 'celes.push', title: 'Push' }),
+        new OverviewItem('$(refresh) Refresh', 'Update Celes state', { command: 'celes.refresh', title: 'Refresh' })
       ])
     );
 
@@ -98,7 +98,7 @@ class OverviewItem extends vscode.TreeItem {
     this.description = description;
     this.command = command;
     this.children = children;
-    this.contextValue = 'gitdeckOverviewItem';
+    this.contextValue = 'celesOverviewItem';
 
     if (label === 'Repository') {
       this.iconPath = new vscode.ThemeIcon('repo');

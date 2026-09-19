@@ -67,7 +67,7 @@ class BranchTreeItem extends vscode.TreeItem {
     );
 
     if (kind === 'localBranch' && branch) {
-      this.contextValue = branch.isCurrent ? 'gitdeckCurrentBranch' : 'gitdeckLocalBranch';
+      this.contextValue = branch.isCurrent ? 'celesCurrentBranch' : 'celesLocalBranch';
       this.description = branch.isCurrent ? 'current' : branch.upstream || '';
       this.iconPath = new vscode.ThemeIcon(
         branch.isCurrent ? 'git-branch' : 'git-compare',
@@ -75,7 +75,7 @@ class BranchTreeItem extends vscode.TreeItem {
       );
       this.tooltip = `${branch.name}${branch.upstream ? ` → ${branch.upstream}` : ''}${branch.ahead ? ` ↑${branch.ahead}` : ''}${branch.behind ? ` ↓${branch.behind}` : ''}`;
     } else if (kind === 'remoteBranch') {
-      this.contextValue = 'gitdeckRemoteBranch';
+      this.contextValue = 'celesRemoteBranch';
       this.iconPath = new vscode.ThemeIcon('cloud');
     }
   }

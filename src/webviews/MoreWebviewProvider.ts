@@ -2,9 +2,10 @@ import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { RepositoryStatus } from '../models';
+import { CELES_ICONS } from './branding';
 
 export class MoreWebviewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'gitdeckMore';
+  public static readonly viewType = 'celesMore';
   private view: vscode.WebviewView | undefined;
 
   constructor(
@@ -32,60 +33,60 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
           await this.refresh();
           break;
         case 'createBranch':
-          await vscode.commands.executeCommand('gitdeck.createBranch');
+          await vscode.commands.executeCommand('celes.createBranch');
           break;
         case 'checkoutBranch':
-          await vscode.commands.executeCommand('gitdeck.checkoutBranch', { name: message.name });
+          await vscode.commands.executeCommand('celes.checkoutBranch', { name: message.name });
           break;
         case 'renameBranch':
-          await vscode.commands.executeCommand('gitdeck.renameBranch', { name: message.name });
+          await vscode.commands.executeCommand('celes.renameBranch', { name: message.name });
           break;
         case 'deleteBranch':
-          await vscode.commands.executeCommand('gitdeck.deleteBranch', { name: message.name });
+          await vscode.commands.executeCommand('celes.deleteBranch', { name: message.name });
           break;
         case 'createStash':
-          await vscode.commands.executeCommand('gitdeck.createStash');
+          await vscode.commands.executeCommand('celes.createStash');
           break;
         case 'applyStash':
-          await vscode.commands.executeCommand('gitdeck.applyStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.applyStash', { index: message.index });
           break;
         case 'popStash':
-          await vscode.commands.executeCommand('gitdeck.popStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.popStash', { index: message.index });
           break;
         case 'deleteStash':
-          await vscode.commands.executeCommand('gitdeck.deleteStash', { index: message.index });
+          await vscode.commands.executeCommand('celes.deleteStash', { index: message.index });
           break;
         case 'fetch':
-          await vscode.commands.executeCommand('gitdeck.fetch');
+          await vscode.commands.executeCommand('celes.fetch');
           break;
         case 'pull':
-          await vscode.commands.executeCommand('gitdeck.pull');
+          await vscode.commands.executeCommand('celes.pull');
           break;
         case 'push':
-          await vscode.commands.executeCommand('gitdeck.push');
+          await vscode.commands.executeCommand('celes.push');
           break;
         case 'publishBranch':
-          await vscode.commands.executeCommand('gitdeck.publishBranch');
+          await vscode.commands.executeCommand('celes.publishBranch');
           break;
         case 'toggleScope':
-          await vscode.commands.executeCommand('gitdeck.toggleScope');
+          await vscode.commands.executeCommand('celes.toggleScope');
           await this.refresh();
           break;
         case 'openCommitFileDiff':
-          await vscode.commands.executeCommand('gitdeck.openCommitFileDiff', message.sha, message.path);
+          await vscode.commands.executeCommand('celes.openCommitFileDiff', message.sha, message.path);
           break;
         case 'showCommitDiff':
-          await vscode.commands.executeCommand('gitdeck.showCommitDiff', message.sha);
+          await vscode.commands.executeCommand('celes.showCommitDiff', message.sha);
           break;
         case 'copySha':
           await vscode.env.clipboard.writeText(String(message.sha ?? ''));
           break;
         case 'renameCommit':
-          await vscode.commands.executeCommand('gitdeck.renameCommit', message.sha);
+          await vscode.commands.executeCommand('celes.renameCommit', message.sha);
           await this.refresh();
           break;
         case 'undoCommit':
-          await vscode.commands.executeCommand('gitdeck.undoCommit', message.sha);
+          await vscode.commands.executeCommand('celes.undoCommit', message.sha);
           await this.refresh();
           break;
         case 'getCommitFiles':
@@ -182,7 +183,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitDeck More</title>
+  <title>Celes More</title>
   <style>
     :root {
       --bg: var(--vscode-sideBar-background, var(--vscode-editor-background, #1e1e1e));
@@ -261,7 +262,9 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
       transition: background 0.1s;
     }
     .item:hover { background: var(--input-bg); }
-    .item .icon { flex-shrink: 0; }
+    .item .icon { flex-shrink: 0; display: inline-flex; align-items: center; opacity: 0.8; }
+    .celes-icon { vertical-align: -2px; flex-shrink: 0; }
+    button .celes-icon { pointer-events: none; }
     .item .label {
       flex: 1;
       white-space: nowrap;
@@ -407,7 +410,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
   <div id="branches" class="panel">
     <div class="actions">
       <button class="secondary" id="createBranchBtn">+ Branch</button>
-      <button class="secondary" id="refreshBranchesBtn">↻</button>
+      <button class="secondary" id="refreshBranchesBtn" title="Refresh" aria-label="Refresh">${CELES_ICONS.refresh}</button>
     </div>
     <div id="branchesList"></div>
   </div>
@@ -415,7 +418,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
   <div id="stashes" class="panel">
     <div class="actions">
       <button class="secondary" id="createStashBtn">+ Stash</button>
-      <button class="secondary" id="refreshStashesBtn">↻</button>
+      <button class="secondary" id="refreshStashesBtn" title="Refresh" aria-label="Refresh">${CELES_ICONS.refresh}</button>
     </div>
     <div id="stashesList"></div>
   </div>
@@ -433,6 +436,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
   <div id="commitMenu" class="context-menu" style="display:none"></div>
 
   <script>
+    const ICONS = ${JSON.stringify(CELES_ICONS)};
     const vscode = acquireVsCodeApi();
     let state = { status: undefined, branches: [], stashes: [], history: [], expandedCommits: new Set(), pendingCommits: new Set(), failedCommits: new Set() };
 
@@ -458,18 +462,17 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
       if (local.length > 0) {
         html += '<div class="section-header"><span>Local</span></div>';
         local.forEach(function(b) {
-          const currentBadge = b.isCurrent ? ' ●' : '';
           const upstream = b.upstream ? ' → ' + escapeHtml(b.upstream) : '';
           const sync = (b.ahead ? ' ↑' + b.ahead : '') + (b.behind ? ' ↓' + b.behind : '');
           html +=
             '<div class="item" data-name="' + escapeHtml(b.name) + '">' +
-              '<span class="icon">🌿</span>' +
-              '<span class="label" title="' + escapeHtml(b.name + upstream + sync) + '">' + escapeHtml(b.name) + currentBadge + '</span>' +
+              '<span class="icon">' + ICONS.branch + '</span>' +
+              '<span class="label" title="' + escapeHtml(b.name + upstream + sync) + '">' + escapeHtml(b.name) + '</span>' +
               '<span class="meta">' + (b.isCurrent ? 'current' : sync) + '</span>' +
               '<span class="branch-actions">' +
-                '<button class="checkout" title="Checkout">⎇</button>' +
-                '<button class="rename" title="Rename">✎</button>' +
-                '<button class="delete" title="Delete">🗑</button>' +
+                '<button class="checkout" title="Checkout" aria-label="Checkout">' + ICONS.check + '</button>' +
+                '<button class="rename" title="Rename" aria-label="Rename">' + ICONS.pencil + '</button>' +
+                '<button class="delete" title="Delete" aria-label="Delete">' + ICONS.trash + '</button>' +
               '</span>' +
             '</div>';
         });
@@ -479,7 +482,7 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
         remote.forEach(function(b) {
           html +=
             '<div class="item" data-name="' + escapeHtml(b.name) + '">' +
-              '<span class="icon">☁</span>' +
+              '<span class="icon">' + ICONS.cloud + '</span>' +
               '<span class="label">' + escapeHtml(b.name) + '</span>' +
             '</div>';
         });
@@ -512,12 +515,12 @@ export class MoreWebviewProvider implements vscode.WebviewViewProvider {
 
       container.innerHTML = state.stashes.map(function(s) {
         return '<div class="item" data-index="' + s.index + '">' +
-          '<span class="icon">📦</span>' +
+          '<span class="icon">' + ICONS.archive + '</span>' +
           '<span class="label" title="' + escapeHtml(s.message) + '">' + escapeHtml(s.message) + '</span>' +
           '<span class="stash-actions">' +
-            '<button class="apply" title="Apply">▶</button>' +
-            '<button class="pop" title="Pop">⬆</button>' +
-            '<button class="delete" title="Delete">🗑</button>' +
+            '<button class="apply" title="Apply" aria-label="Apply">' + ICONS.arrowDown + '</button>' +
+            '<button class="pop" title="Pop" aria-label="Pop">' + ICONS.arrowUp + '</button>' +
+            '<button class="delete" title="Delete" aria-label="Delete">' + ICONS.trash + '</button>' +
           '</span>' +
         '</div>';
       }).join('');

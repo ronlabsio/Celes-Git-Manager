@@ -50,7 +50,7 @@ class StashTreeItem extends vscode.TreeItem {
       this.description = stash.message;
       this.tooltip = `${stash.message}\n${stash.date.toLocaleString()}${stash.branch ? ` on ${stash.branch}` : ''}`;
       this.iconPath = new vscode.ThemeIcon('archive');
-      this.contextValue = 'gitdeckStash';
+      this.contextValue = 'celesStash';
     }
   }
 }

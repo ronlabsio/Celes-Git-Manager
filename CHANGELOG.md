@@ -4,8 +4,8 @@
 
 ### Added
 - Folder scope for monorepos: opening a package inside a larger repository now limits the Changes panel, history and commit file lists to that folder.
-- New `gitdeck.scope` setting (`workspace` | `repository`) and the **GitDeck: Toggle Folder Scope** command, also available from the More panel.
-- Brand header with the GitDeck logo in the Changes and Commit panels.
+- New `celes.scope` setting (`workspace` | `repository`) and the **Celes: Toggle Folder Scope** command, also available from the More panel.
+- Brand header with the Celes logo in the Changes and Commit panels.
 
 ### Fixed
 - Commit context menu now opens on right-click in the More panel history (the menu element was missing from the markup).
@@ -26,7 +26,7 @@
 ## [0.1.0] - 2026-09-19
 
 ### Added
-- Activity Bar view container for GitDeck.
+- Activity Bar view container for Celes.
 - Overview panel showing repository name, current branch, changes summary, ahead/behind, and remote.
 - Changes panel with staged, unstaged, and untracked sections.
 - Stage, unstage, stage all, unstage all, discard, open file, and open diff actions.
