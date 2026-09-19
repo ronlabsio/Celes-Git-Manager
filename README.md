@@ -107,9 +107,14 @@ If the workspace is not a Git repository, Celes shows an **Initialize Repository
 ### v0.5
 - GitHub Actions, workflow logs, releases, and tags/releases management.
 
+## Links
+
+- Source: [github.com/ronlabsio/Celes-Git-Manager](https://github.com/ronlabsio/Celes-Git-Manager)
+- Bugs and feature requests: [Issues](https://github.com/ronlabsio/Celes-Git-Manager/issues)
+
 ## Contributing
 
-The development setup and the internal architecture are documented in `CONTRIBUTING.md`, in the source repository.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and the internal architecture.
 
 ## License
 

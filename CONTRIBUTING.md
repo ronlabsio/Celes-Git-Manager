@@ -1,8 +1,14 @@
 # Contributing
 
+Source: [github.com/ronlabsio/Celes-Git-Manager](https://github.com/ronlabsio/Celes-Git-Manager)
+
 ## Development Setup
 
 ```bash
+# Clone the repository
+git clone git@github.com:ronlabsio/Celes-Git-Manager.git
+cd Celes-Git-Manager
+
 # Install dependencies
 npm install
 

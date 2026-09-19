@@ -5,6 +5,13 @@
   "version": "0.1.3",
   "publisher": "ronlabs",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ronlabsio/Celes-Git-Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ronlabsio/Celes-Git-Manager/issues"
+  },
   "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.84.0"

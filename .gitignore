@@ -27,4 +27,5 @@ Thumbs.db
 
 # Local session data
 backup-session.json
+PLAN.md
 .vscode-test/
