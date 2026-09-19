@@ -12,14 +12,14 @@ export const CELES_MARK_SVG = `<svg class="celes-mark" viewBox="0 0 256 256" wid
   </defs>
   <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#celes-hdr-bg)"/>
   <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#celes-hdr-gloss)"/>
-  <g stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" fill="none">
-    <path d="M86 92 L86 164"/>
-    <path d="M170 106 L170 124 C170 150 152 164 126 164 L86 164"/>
-  </g>
+  <polyline points="176,74 116,64 74,110 82,168 132,196 180,182" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
   <g fill="#FFFFFF">
-    <circle cx="86" cy="72" r="20"/>
-    <circle cx="86" cy="184" r="20"/>
-    <circle cx="170" cy="86" r="20"/>
+    <circle cx="116" cy="64" r="13"/>
+    <circle cx="74" cy="110" r="17"/>
+    <circle cx="82" cy="168" r="13"/>
+    <circle cx="132" cy="196" r="11"/>
+    <circle cx="180" cy="182" r="9"/>
+    <path d="M176 44 L182 66 L204 72 L182 78 L176 100 L170 78 L148 72 L170 66 Z"/>
   </g>
 </svg>`;
 
