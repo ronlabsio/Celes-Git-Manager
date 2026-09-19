@@ -59,43 +59,6 @@ button in the More panel under Overview.
 
 If the workspace is not a Git repository, Celes shows an **Initialize Repository** button that runs `git init` after confirmation.
 
-## Development Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Compile TypeScript
-npm run compile
-
-# Watch mode
-npm run watch
-
-# Run unit tests
-npm run test:unit
-
-# Run lint
-npm run lint
-
-# Package the extension
-npx @vscode/vsce package
-```
-
-## Architecture
-
-```
-UI (Webviews / Commands) → GitService → GitCommandRunner → git
-```
-
-- `GitCommandRunner`: central, safe execution layer using `execFile` with argument arrays.
-- `GitService`: domain operations such as commit, branch management, and stash handling.
-- `Parsers`: convert raw Git output into typed models.
-- `Webviews`: the Changes and More sidebar views plus the commit editor tab; they post messages to the extension host rather than running Git themselves.
-- `Views`: text document content providers backing the diff editors.
-- `Commands`: handle user actions from the Command Palette and the webviews.
-
-The UI never constructs arbitrary Git commands. All user input is validated and passed as separate arguments.
-
 ## Security Considerations
 
 - No shell string concatenation; all commands use `execFile` with an argument array.
@@ -123,6 +86,10 @@ The UI never constructs arbitrary Git commands. All user input is validated and 
 
 ### v0.5
 - GitHub Actions, workflow logs, releases, and tags/releases management.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and the internal architecture.
 
 ## License
 
