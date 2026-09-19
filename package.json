@@ -4,6 +4,14 @@
   "description": "Visual Git management inside VS Code: stage, commit, branches, stashes and history in one panel.",
   "version": "0.1.2",
   "publisher": "ronaldlopes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ronlabsio/Celes-Git-Manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ronlabsio/Celes-Git-Manager/issues"
+  },
   "icon": "resources/icon.png",
   "engines": {
     "vscode": "^1.84.0"
