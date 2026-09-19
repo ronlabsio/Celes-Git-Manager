@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
-import { CELES_HEADER_CSS, CELES_ICONS, celesHeaderHtml } from './branding';
+import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml } from './branding';
 
 interface WebviewFile {
   path: string;
@@ -423,11 +423,13 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
       justify-content: center;
     }
     .section-action:hover { background: var(--input-bg); color: var(--accent); border-color: var(--accent); }
-    .file-list {
-      overflow-y: auto;
+    #sections {
       flex: 1;
-      min-height: 60px;
-      max-height: 300px;
+      min-height: 0;
+      overflow-y: auto;
+    }
+    .file-list {
+      flex: 1;
     }
     .file-list:not(.expanded) { display: none; }
     .file-item, .folder-item {
@@ -549,11 +551,11 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
     }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.error { background: var(--warning); }
-${CELES_HEADER_CSS}
+${CELES_STRIP_CSS}
   </style>
 </head>
 <body>
-${celesHeaderHtml({ badgeId: 'branchBadge' })}
+${celesStripHtml({ badgeId: 'branchBadge' })}
 
   <div class="commit-box">
     <textarea id="message" placeholder="Message (required)"></textarea>
@@ -868,11 +870,9 @@ ${celesHeaderHtml({ badgeId: 'branchBadge' })}
         case 'state':
           state.files = msg.files;
           state.branch = msg.branch;
-          document.getElementById('branchBadge').textContent = msg.scopePath
-            ? msg.branch + ' · ' + msg.scopePath
-            : msg.branch;
+          document.getElementById('branchBadge').lastElementChild.textContent = msg.branch;
           document.getElementById('branchBadge').title = msg.scopePath
-            ? 'Branch · scope (opened folder)'
+            ? 'Branch ' + msg.branch + ' · scope: ' + msg.scopePath
             : 'Current branch';
           render();
           break;

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
-import { CELES_HEADER_CSS, CELES_ICONS, celesHeaderHtml } from './branding';
+import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml } from './branding';
 
 export class CommitPanel {
   public static readonly viewType = 'celes.commitPanel';
@@ -234,6 +234,7 @@ export class CommitPanel {
       color: var(--fg);
       margin: 0;
       padding: 20px;
+      --celes-pad: 20px;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -249,11 +250,11 @@ export class CommitPanel {
     }
     h1 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
 
-    ${CELES_HEADER_CSS}
+    ${CELES_STRIP_CSS}
   </style>
 </head>
 <body>
-${celesHeaderHtml({ badgeId: 'branch' })}
+${celesStripHtml({ badgeId: 'branch' })}
 
   <div class="main">
     <div class="panel">

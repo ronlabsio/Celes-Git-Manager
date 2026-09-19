@@ -45,72 +45,66 @@ export const CELES_ICONS = {
   minus: glyph('<path d="M3.25 8h9.5"/>')
 } as const;
 
-export function celesHeaderHtml(options: { subtitle?: string; badgeId?: string; badgeText?: string }): string {
-  const subtitle = options.subtitle ? `<span class="celes-subtitle">${options.subtitle}</span>` : '';
+export const CELES_ICON_CSS = `
+    .celes-icon { vertical-align: -2px; flex-shrink: 0; }
+    button .celes-icon { pointer-events: none; }
+`;
+
+export function celesStripHtml(options: { badgeId?: string; badgeText?: string }): string {
   const badgeId = options.badgeId ?? 'celesBadge';
   const badgeText = options.badgeText ?? '';
-  return `<header class="celes-header">
+  return `<div class="celes-strip">
     ${CELES_MARK_SVG}
-    <div class="celes-titles">
-      <div class="celes-title-row">
-        <span class="celes-title">Celes</span>
-        ${subtitle}
-      </div>
-      <span class="celes-tagline">Git Manager</span>
-    </div>
-    <span class="celes-badge" id="${badgeId}" title="Current branch">${badgeText}</span>
-  </header>`;
+    <span class="celes-wordmark">Celes \u2013 Git Manager</span>
+    <span class="celes-badge" id="${badgeId}" title="Current branch">${CELES_ICONS.branch}<span></span></span>
+  </div>`.replace('<span></span>', `<span>${badgeText}</span>`);
 }
 
-export const CELES_HEADER_CSS = `
-    .celes-header {
+/**
+ * The strip bleeds to the edges of whichever panel hosts it, so the host sets
+ * --celes-pad to its own body padding.
+ */
+export const CELES_STRIP_CSS = `
+    .celes-strip {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 10px;
-      margin: -10px -10px 10px -10px;
+      gap: 10px;
+      min-width: 0;
+      box-sizing: border-box;
+      padding: 11px 12px;
+      margin: calc(var(--celes-pad, 10px) * -1) calc(var(--celes-pad, 10px) * -1) 10px;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(135deg, rgba(79, 70, 229, 0.16), rgba(14, 116, 144, 0.12));
     }
-    .celes-header .celes-mark { flex-shrink: 0; border-radius: 6px; }
-    .celes-header .celes-titles { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .celes-header .celes-title-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
-    .celes-header .celes-title {
-      font-size: 13px;
+    .celes-strip .celes-mark { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; }
+    .celes-strip .celes-wordmark {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       background: linear-gradient(90deg, #A78BFA, #22D3EE);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
     }
-    .celes-header .celes-subtitle {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      opacity: 0.75;
-      white-space: nowrap;
-    }
-    .celes-header .celes-tagline {
-      font-size: 10px;
-      opacity: 0.6;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .celes-header .celes-badge {
+    .celes-strip .celes-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
       flex-shrink: 0;
-      max-width: 45%;
-      padding: 2px 8px;
+      max-width: 55%;
+      padding: 3px 10px;
       border-radius: 999px;
       border: 1px solid var(--border);
-      background: var(--input-bg);
-      font-size: 10px;
+      background: var(--vscode-input-background, var(--input-bg));
+      font-size: 11px;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .celes-icon { vertical-align: -2px; flex-shrink: 0; }
-    button .celes-icon { pointer-events: none; }
-`;
+${CELES_ICON_CSS}`;
