@@ -8,7 +8,6 @@ import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml, cspMeta, createNonce } fr
 interface WebviewFile {
   path: string;
   status: 'staged' | 'unstaged' | 'untracked';
-  selected: boolean;
 }
 
 export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
@@ -86,9 +85,9 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
       const changes = await this.gitService.getChanges();
       const status = await this.gitService.getRepositoryStatus().catch(() => undefined);
       const files: WebviewFile[] = [
-        ...changes.staged.map((c) => ({ path: c.path, status: 'staged' as const, selected: true })),
-        ...changes.unstaged.map((c) => ({ path: c.path, status: 'unstaged' as const, selected: false })),
-        ...changes.untracked.map((c) => ({ path: c.path, status: 'untracked' as const, selected: false }))
+        ...changes.staged.map((c) => ({ path: c.path, status: 'staged' as const })),
+        ...changes.unstaged.map((c) => ({ path: c.path, status: 'unstaged' as const })),
+        ...changes.untracked.map((c) => ({ path: c.path, status: 'untracked' as const }))
       ];
 
       this.view.webview.postMessage({
@@ -447,12 +446,6 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
     }
     .file-item:hover, .folder-item:hover { background: var(--input-bg); }
     .file-item.active { background: var(--input-bg); outline: 1px solid var(--accent); }
-    .file-item input[type="checkbox"] {
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
     .file-item .dot, .folder-item .chevron {
       width: 14px;
       height: 14px;
@@ -642,7 +635,6 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
       const isUntracked = file.status === 'untracked';
       const dotSymbol = isStaged ? '●' : isUntracked ? '+' : '●';
       el.innerHTML =
-        '<input type="checkbox" ' + (file.selected ? 'checked' : '') + '>' +
         '<span class="dot ' + file.status + '">' + dotSymbol + '</span>' +
         '<span class="path" title="' + escapeHtml(file.path) + '">' + escapeHtml(state.treeView ? file.displayName : file.path) + '</span>' +
         '<span class="badge ' + file.status + '">' + file.status + '</span>' +
@@ -653,16 +645,10 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
           '<button class="discard-one icon-btn" title="Discard" aria-label="Discard">' + ICONS.trash + '</button>' +
         '</span>';
 
-      el.querySelector('input').addEventListener('change', function(e) {
-        file.selected = e.target.checked;
-        updateStaging();
-      });
-
       const stageOne = el.querySelector('.stage-one');
       if (stageOne) {
         stageOne.addEventListener('click', function(e) {
           e.stopPropagation();
-          file.selected = true;
           send('stage', { paths: [file.path] });
         });
       }
@@ -671,7 +657,6 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
       if (unstageOne) {
         unstageOne.addEventListener('click', function(e) {
           e.stopPropagation();
-          file.selected = false;
           send('unstage', { paths: [file.path] });
         });
       }
@@ -685,13 +670,13 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
       }
 
       el.addEventListener('click', function(e) {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+        if (e.target.tagName === 'BUTTON') return;
         document.querySelectorAll('.file-item').forEach(function(i) { i.classList.remove('active'); });
         el.classList.add('active');
         if (isUntracked) {
           send('openFile', { path: file.path });
         } else {
-          send('openDiff', { path: file.path, staged: isStaged || file.selected });
+          send('openDiff', { path: file.path, staged: isStaged });
         }
       });
 
@@ -815,7 +800,7 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
     function render() {
       const container = document.getElementById('sections');
       const stagedCount = document.getElementById('stagedCount');
-      const staged = state.files.filter(function(f) { return f.status === 'staged' || f.selected; });
+      const staged = state.files.filter(function(f) { return f.status === 'staged'; });
       stagedCount.textContent = staged.length + ' staged';
 
       if (state.files.length === 0) {
@@ -835,13 +820,6 @@ ${celesStripHtml({ badgeId: 'branchBadge' })}
         if (list.length === 0) return;
         container.appendChild(renderSection(key, list));
       });
-    }
-
-    function updateStaging() {
-      const toStage = state.files.filter(function(f) { return f.selected && f.status !== 'staged'; }).map(function(f) { return f.path; });
-      const toUnstage = state.files.filter(function(f) { return !f.selected && f.status === 'staged'; }).map(function(f) { return f.path; });
-      if (toStage.length) send('stage', { paths: toStage });
-      if (toUnstage.length) send('unstage', { paths: toUnstage });
     }
 
     function showToast(message, isError) {
