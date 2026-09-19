@@ -1,22 +1,60 @@
 # Celes – Git Manager
 
-Visual Git management inside VS Code.
+**Git scoped to the package you are working on.** A visual Git panel for VS Code, built for monorepos.
 
-Celes is a VS Code extension that provides a complete visual interface for **local Git operations**, reducing the need to type Git commands in the terminal. It does not reimplement Git — it invokes the system's `git` executable through safe subprocess calls.
+## The problem
 
-## Features
+You open `packages/api` to work on one service. Every Git tool in the editor still shows you the whole
+repository: 40 changed files from four other packages, a history where your commits are buried under
+everyone else's, and a commit box that happily includes files you never looked at.
 
-- **Changes panel**: write the commit message, commit and push, and stage, unstage or discard files inline — all in one sidebar view. Files can be shown grouped by folder or as a flat list.
+Celes scopes the panel to the folder you opened. Changes, history and commit file lists show that package
+and nothing else.
+
+## What scoping actually covers
+
+- **Changes**: only files under the opened folder. Stage All and Unstage All stay inside it too.
+- **History**: `git log` filtered to commits that touched the folder, so the list is your package's history.
+- **Commit files and diffs**: expanding a commit lists only the files in your scope.
+- **Commit safety**: `git commit` always takes the whole index, which is exactly how a file from another
+  package rides along invisibly. Celes detects anything staged outside the scope and asks before committing
+  it, naming the files.
+
+Scoping is on by default whenever the opened folder is below the repository root. It turns itself off when
+you open the repository root, so a single-package repo behaves like any other Git client.
+
+```json
+{
+  "celes.scope": "workspace"
+}
+```
+
+- `workspace` (default): only the opened folder.
+- `repository`: the entire repository, even when a subfolder is opened.
+
+Toggle it from the command palette with **Celes: Toggle Folder Scope**, or from the **Scope** button in the
+More panel under Overview. Hovering the branch badge shows the active scope.
+
+## Everything else it does
+
+Scoping is the reason Celes exists, but you still need the rest of the daily loop in the same panel:
+
+- **Changes panel**: write the message, commit and push, and stage, unstage or discard files inline. Files
+  can be grouped by folder or listed flat.
 - **Commit editor**: a wider commit view in an editor tab, for when the sidebar is too narrow.
-- **More panel**: tabs for History, Branches, Stashes and Repository Overview.
-- **History**: expand any commit to see changed files (including renames); click a file to open a native side-by-side diff inside the editor.
-- **Remote Operations**: fetch, pull, push, and publish a local branch to origin.
-- **Branches**: list, create, checkout, rename, and safely delete local and remote branches.
-- **Stashes**: create, apply, pop, and delete stashes.
-- **Commit context actions**: rename the latest commit, undo the latest commit while keeping changes staged, and open the full commit diff.
-- **Monorepo folder scope**: when you open a package inside a larger repository, Celes only shows changes, commits and diffs for that folder.
-- **Educational UI**: every non-obvious operation is explained, and equivalent Git commands are shown when useful.
-- **Humanized Errors**: Git errors are translated into clear messages while preserving raw details in the Celes output channel.
+- **History**: expand any commit to see changed files (including renames); click one for a native
+  side-by-side diff.
+- **Branches**: list, create, checkout, rename and safely delete local and remote branches.
+- **Stashes**: create, apply, pop and delete. Celes verifies the stash still is the one you selected before
+  acting, because `stash@{n}` shifts when the list changes.
+- **Remote operations**: fetch, pull, push, and publish a local branch to origin.
+- **Commit actions**: rename or undo the latest commit, and open the full commit diff. Both refuse to run
+  when the commit you picked is not actually the latest one on the branch.
+- **Humanized errors**: Git errors become readable messages, with the raw output kept in the Celes output
+  channel.
+
+Celes does not reimplement Git. It invokes the system's `git` executable through argument arrays, never a
+shell string.
 
 ## Requirements
 
@@ -30,24 +68,6 @@ You can optionally configure a custom Git path:
   "celes.gitPath": "/usr/local/bin/git"
 }
 ```
-
-### Working in a monorepo
-
-If you open a subfolder of a repository (for example `packages/api` inside a monorepo), Celes scopes the
-Changes panel, the commit history and commit file lists to that folder by default. Hovering the branch badge
-shows the active scope.
-
-```json
-{
-  "celes.scope": "workspace"
-}
-```
-
-- `workspace` (default): only the opened folder.
-- `repository`: the entire repository, even when a subfolder is opened.
-
-You can also toggle it from the command palette with **Celes: Toggle Folder Scope**, or from the **Scope**
-button in the More panel under Overview.
 
 ## Usage
 

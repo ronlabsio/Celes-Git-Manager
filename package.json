@@ -1,7 +1,7 @@
 {
   "name": "celes-git-manager",
   "displayName": "Celes – Git Manager",
-  "description": "Visual Git management inside VS Code: stage, commit, branches, stashes and history in one panel.",
+  "description": "Git scoped to the package you are working on. A visual Git panel for VS Code, built for monorepos.",
   "version": "0.1.2",
   "publisher": "ronlabs",
   "license": "MIT",
@@ -21,9 +21,12 @@
     "Other"
   ],
   "keywords": [
+    "monorepo",
     "git",
     "scm",
     "source control",
+    "workspace",
+    "packages",
     "visual",
     "celes"
   ],

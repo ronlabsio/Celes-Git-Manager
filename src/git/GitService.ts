@@ -195,6 +195,27 @@ export class GitService {
     await this.run(['clean', '-f', '--', filePath]);
   }
 
+  /**
+   * Paths staged in the index that the scoped views do not show. `git commit`
+   * always takes the whole index, so these ride along invisibly.
+   */
+  async getStagedOutsideScope(): Promise<string[]> {
+    if (!this.scopePath) {
+      return [];
+    }
+    const prefix = `${this.scopePath}/`;
+    try {
+      // deliberately unscoped: we are looking for what the scope hides
+      const result = await this.run(['status', '--porcelain=1', '-uall']);
+      const { changes } = parseStatus(result.stdout, '', this.initialCommit);
+      return changes.staged
+        .map((change) => change.path)
+        .filter((filePath) => filePath !== this.scopePath && !filePath.startsWith(prefix));
+    } catch {
+      return [];
+    }
+  }
+
   async commit(message: string): Promise<void> {
     if (!message.trim()) {
       throw new GitError('Commit message is empty', undefined, '', '', 'Please provide a commit message.');

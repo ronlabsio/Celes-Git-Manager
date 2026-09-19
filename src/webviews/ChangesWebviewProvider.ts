@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { log } from '../utils/logger';
+import { confirmStagedOutsideScope } from '../utils/scopeGuard';
 import { CELES_DIFF_SCHEME } from '../views/CelesDiffContentProvider';
 import { CELES_ICONS, CELES_STRIP_CSS, celesStripHtml, cspMeta, createNonce } from './branding';
 
@@ -192,6 +193,10 @@ export class ChangesWebviewProvider implements vscode.WebviewViewProvider {
           type: 'error',
           message: 'No staged changes. Select at least one file before committing.'
         });
+        return;
+      }
+
+      if (!(await confirmStagedOutsideScope(this.gitService))) {
         return;
       }
 

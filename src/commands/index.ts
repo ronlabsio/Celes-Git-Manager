@@ -3,6 +3,7 @@ import * as path from 'path';
 import { GitService } from '../git/GitService';
 import { GitError } from '../utils/errors';
 import { log } from '../utils/logger';
+import { confirmStagedOutsideScope } from '../utils/scopeGuard';
 import { explain } from '../utils/gitExplain';
 import { GitFileChange } from '../models';
 import { CommitPanel } from '../webviews/CommitPanel';
@@ -236,6 +237,10 @@ export function registerCommands(
       return;
     }
 
+    if (!(await confirmStagedOutsideScope(gitService))) {
+      return;
+    }
+
     try {
       await gitService.commit(message.trim());
       refreshAll();
@@ -264,6 +269,10 @@ export function registerCommands(
       prompt: 'New commit message (leave empty to keep the previous)',
       placeHolder: 'Optional'
     });
+
+    if (!(await confirmStagedOutsideScope(gitService))) {
+      return;
+    }
 
     try {
       await gitService.amendCommit(message || undefined);
