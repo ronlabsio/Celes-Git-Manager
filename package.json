@@ -1,0 +1,376 @@
+{
+  "name": "gitdeck",
+  "displayName": "GitDeck",
+  "description": "Visual Git management inside VS Code.",
+  "version": "0.1.2",
+  "publisher": "ronaldlopes",
+  "icon": "resources/icon.png",
+  "engines": {
+    "vscode": "^1.84.0"
+  },
+  "categories": [
+    "SCM Providers",
+    "Other"
+  ],
+  "keywords": [
+    "git",
+    "scm",
+    "source control",
+    "visual"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "GitDeck",
+      "properties": {
+        "gitdeck.gitPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the git executable. Leave empty to detect automatically."
+        },
+        "gitdeck.logLevel": {
+          "type": "string",
+          "default": "info",
+          "enum": [
+            "silent",
+            "error",
+            "info",
+            "debug"
+          ],
+          "description": "Log level for the GitDeck output channel."
+        },
+        "gitdeck.scope": {
+          "type": "string",
+          "default": "workspace",
+          "enum": [
+            "workspace",
+            "repository"
+          ],
+          "enumDescriptions": [
+            "Only show changes and commits for the opened folder. Use this in monorepos when you open a package subfolder.",
+            "Show changes and commits for the entire Git repository, even when you open a subfolder."
+          ],
+          "description": "Which part of the repository GitDeck should display and operate on."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gitdeck",
+          "title": "GitDeck",
+          "icon": "resources/gitdeck.svg"
+        }
+      ]
+    },
+    "views": {
+      "gitdeck": [
+        {
+          "id": "gitdeckChanges",
+          "name": "Changes",
+          "type": "webview",
+          "when": "gitdeck:enabled"
+        },
+        {
+          "id": "gitdeckMore",
+          "name": "More",
+          "type": "webview",
+          "when": "gitdeck:enabled"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "gitdeck.refresh",
+          "when": "view == gitdeckOverview",
+          "group": "navigation"
+        },
+        {
+          "command": "gitdeck.refresh",
+          "when": "view == gitdeckChanges",
+          "group": "navigation"
+        },
+        {
+          "command": "gitdeck.openCommitPanel",
+          "when": "view == gitdeckChanges",
+          "group": "navigation@1"
+        },
+        {
+          "command": "gitdeck.stageAll",
+          "when": "view == gitdeckChanges",
+          "group": "navigation@2"
+        },
+        {
+          "command": "gitdeck.unstageAll",
+          "when": "view == gitdeckChanges",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "gitdeck.checkoutBranch",
+          "when": "viewItem == gitdeckLocalBranch",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.deleteBranch",
+          "when": "viewItem == gitdeckLocalBranch",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.renameBranch",
+          "when": "viewItem == gitdeckLocalBranch",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.applyStash",
+          "when": "viewItem == gitdeckStash",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.popStash",
+          "when": "viewItem == gitdeckStash",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.deleteStash",
+          "when": "viewItem == gitdeckStash",
+          "group": "inline"
+        },
+        {
+          "command": "gitdeck.renameCommit",
+          "when": "viewItem == gitdeckLatestCommit",
+          "group": "9_cutcopypaste@1"
+        },
+        {
+          "command": "gitdeck.undoCommit",
+          "when": "viewItem == gitdeckLatestCommit",
+          "group": "9_cutcopypaste@2"
+        },
+        {
+          "command": "gitdeck.showCommitDiff",
+          "when": "viewItem == gitdeckCommit || viewItem == gitdeckLatestCommit",
+          "group": "9_cutcopypaste@3"
+        },
+        {
+          "command": "gitdeck.openCommitFileDiff",
+          "when": "viewItem == gitdeckCommitFile",
+          "group": "inline"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "gitdeck.initializeRepository",
+          "when": "!gitdeck:enabled"
+        },
+        {
+          "command": "gitdeck.stageFile",
+          "when": "gitdeck:enabled"
+        },
+        {
+          "command": "gitdeck.unstageFile",
+          "when": "gitdeck:enabled"
+        },
+        {
+          "command": "gitdeck.discardFile",
+          "when": "gitdeck:enabled"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "gitdeck.open",
+        "title": "Open",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.refresh",
+        "title": "Refresh",
+        "category": "GitDeck",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gitdeck.toggleScope",
+        "title": "Toggle Folder Scope (opened folder / whole repository)",
+        "category": "GitDeck",
+        "icon": "$(folder)"
+      },
+      {
+        "command": "gitdeck.initializeRepository",
+        "title": "Initialize Repository",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.fetch",
+        "title": "Fetch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.pull",
+        "title": "Pull",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.push",
+        "title": "Push",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.publishBranch",
+        "title": "Publish Branch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.commit",
+        "title": "Commit",
+        "category": "GitDeck",
+        "icon": "$(check)"
+      },
+      {
+        "command": "gitdeck.openCommitPanel",
+        "title": "Open Commit Panel",
+        "category": "GitDeck",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "gitdeck.amendCommit",
+        "title": "Amend Previous Commit",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.stageFile",
+        "title": "Stage",
+        "category": "GitDeck",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "gitdeck.unstageFile",
+        "title": "Unstage",
+        "category": "GitDeck",
+        "icon": "$(minus)"
+      },
+      {
+        "command": "gitdeck.stageAll",
+        "title": "Stage All Changes",
+        "category": "GitDeck",
+        "icon": "$(plus)"
+      },
+      {
+        "command": "gitdeck.unstageAll",
+        "title": "Unstage All Changes",
+        "category": "GitDeck",
+        "icon": "$(minus)"
+      },
+      {
+        "command": "gitdeck.discardFile",
+        "title": "Discard Changes",
+        "category": "GitDeck",
+        "icon": "$(discard)"
+      },
+      {
+        "command": "gitdeck.openFile",
+        "title": "Open File",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.openDiff",
+        "title": "Open Diff",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.createBranch",
+        "title": "Create Branch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.checkoutBranch",
+        "title": "Checkout Branch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.renameBranch",
+        "title": "Rename Branch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.deleteBranch",
+        "title": "Delete Branch",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.createStash",
+        "title": "Create Stash",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.applyStash",
+        "title": "Apply Stash",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.popStash",
+        "title": "Pop Stash",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.deleteStash",
+        "title": "Delete Stash",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.showCommitDetails",
+        "title": "Show Commit Details",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.renameCommit",
+        "title": "Rename Commit",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.undoCommit",
+        "title": "Undo Commit (Keep Changes)",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.showCommitDiff",
+        "title": "Show Changes Side by Side",
+        "category": "GitDeck"
+      },
+      {
+        "command": "gitdeck.openCommitFileDiff",
+        "title": "Open Diff",
+        "category": "GitDeck"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile && npm run lint",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "test:unit": "mocha --require source-map-support/register out/test/**/*.test.js",
+    "test:unit:debug": "mocha --inspect-brk --require source-map-support/register out/test/**/*.test.js",
+    "package": "npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "20.x",
+    "@types/sinon": "^17.0.3",
+    "@types/vscode": "^1.84.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "mocha": "^10.2.0",
+    "sinon": "^17.0.1",
+    "source-map-support": "^0.5.21",
+    "typescript": "^5.3.3"
+  }
+}
